@@ -4,8 +4,12 @@ import 'dart:async';
 
 import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/globals/utils.dart';
+import 'package:FeSekka/model/countries.dart';
+import 'package:FeSekka/services/appInfo.dart';
 import 'package:FeSekka/services/registration.dart';
 import 'package:FeSekka/ui/men_or_women.dart';
+import 'package:FeSekka/widgets/loader.dart';
+import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -27,8 +31,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController selectedPlaceController = TextEditingController();
-
+  late Country data;
+  bool isLoading = true;
   DateTime dateTime = DateTime.now();
+  Datum? selectedCountry;
   bool nameError = false;
   bool emailError = false;
   bool phoneError = false;
@@ -37,7 +43,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // late PickResult selectedPlace;
   TextEditingController addressController = TextEditingController();
   Position? position;
+  Future<void> getCountryName() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> address =
+    await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark placeMark = address.first;
+    String? country = placeMark.country;
+    print(address.first);
+    print(country);
+    setState(() {
+      for(var item in data.data!){
+        if(item.titleen?.toLowerCase()==country?.toLowerCase()) {
+          selectedCountry=item;
+          print(selectedCountry);
+        }
 
+      }
+    });
+    // this will return country name
+  }
   void _navigateAndDisplaySelection(BuildContext context) async {
 
     final result = await Navigator.push(
@@ -82,7 +107,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       String? response = await (RegistrationService().registrationService(
         name: nameController.text,
         email: emailController.text,
-        phone: phoneController.text,
+        phone: selectedCountry == null
+            ? "${selectedCountry!.code}${phoneController.text}"
+            : phoneController.text,
         password: passwordController.text,
         gender: "male",
         address: addressController.text,
@@ -98,7 +125,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
     }
   }
+  getData() async {
+    // title = await AppDataService().getCvTitle();
+    data = (await AppInfoService().getCountries())!;
+    if (data.data!.isNotEmpty) {
+      selectedCountry = data.data!.first;
+    }
+    isLoading = false;
+    getCountryName();
+    setState(() {});
+  }
+  @override
+  initState()  {
+    super.initState();
 
+    getData();
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
       body: Builder(
         builder: (context) {
-          return SingleChildScrollView(
+          return isLoading?Loader():SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -196,28 +239,100 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       )
                     : Container(),
                 Padding(padding: EdgeInsets.only(top: 10)),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  child: TextField(
-                    controller: phoneController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 25,
-                          vertical: 15,
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                            borderSide: BorderSide(color: Color(0xFF66a5b4))),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                            borderSide: BorderSide(color: Color(0xFF66a5b4))),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                            borderSide: BorderSide(color: Colors.green)),
-                        hintText:
-                            "${AppLocalizations.of(context)!.translate('phoneNumber')}"),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.65,
+                      child: TextField(
+                        controller: phoneController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 25,
+                              vertical: 15,
+                            ),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Color(0xFF66a5b4))),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Color(0xFF66a5b4))),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Colors.green)),
+                            hintText:
+                                "${AppLocalizations.of(context)!.translate('phoneNumber')}"),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    InkWell(
+                      onTap: () {
+
+                        showAdaptiveActionSheet(
+                          context: context,
+                          title: Text(
+                            "${AppLocalizations.of(context)?.translate('country')}",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          actions: data.data!
+                              .map<BottomSheetAction>(
+                                  (Datum value) {
+                                return BottomSheetAction(
+                                    title: Padding(
+                                      padding:
+                                      const EdgeInsets.all(
+                                          8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment
+                                            .spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Image.network(value.image??"",height: 35,width: 35,),
+                                              SizedBox(width: 10,),
+                                              Text(
+                                                "${Localizations.localeOf(context).languageCode == 'en' ? value.titleen : value.titlear}",
+                                                textAlign:
+                                                TextAlign.start,
+                                                style: TextStyle(
+                                                    fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            "${value.code}",
+                                            textAlign:
+                                            TextAlign.start,
+                                            style: TextStyle(
+                                                fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    onPressed: (build) {
+                                      selectedCountry = value;
+                                      setState(() {});
+                                      Navigator.of(context)
+                                          .pop();
+                                    });
+                              }).toList(),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Image.network(selectedCountry == null ? data.data!.first.image! : selectedCountry!.image!,height: 35,width: 35,),
+                          SizedBox(width: 10,),
+                          Text(
+                              "${selectedCountry == null ? data.data!.first.code : selectedCountry!.code}"),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
                 phoneError
                     ? Text(

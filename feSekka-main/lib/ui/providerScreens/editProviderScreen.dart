@@ -13,6 +13,7 @@ import 'package:dio/dio.dart';
 import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -41,10 +42,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           countriesData!.data!.firstWhere((element) => element.titlear == "قطر");
       saveCountry(selectedCountry!);
     } catch (e) {}
+    getCountryName();
     loading = false;
     setState(() {});
   }
+  Future<void> getCountryName() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> address =
+    await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark placeMark = address.first;
+    String? country = placeMark.country;
+    print(address.first);
+    print(country);
+    setState(() {
+      for(var item in countriesData!.data!){
+        if(item.titleen?.toLowerCase()==country?.toLowerCase()) {
+          selectedCountry=item;
+          print(selectedCountry);
+        }
 
+      }
+    });
+    // this will return country name
+  }
   getUserData() async {
     await getCountry();
     loading = false;

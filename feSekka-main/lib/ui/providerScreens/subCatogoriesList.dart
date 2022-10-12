@@ -2,6 +2,7 @@ import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/provider/subcategoryProvider.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/providerScreens/addCat.dart';
+import 'package:FeSekka/widgets/loader.dart';
 import 'package:flutter/material.dart';
 
 class SubCatPage extends StatefulWidget {
@@ -49,9 +50,7 @@ class _SubCatPageState extends State<SubCatPage> {
           ],
         ),
         body: isLoading
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
+            ? Loader()
             : ListView.builder(
                 itemCount: list.length,
                 itemBuilder: (BuildContext context, int index) {

@@ -8,6 +8,7 @@ import 'package:FeSekka/model/main_model.dart';
 import 'package:FeSekka/model/provider/subcategoryProvider.dart';
 import 'package:FeSekka/services/get_categories.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
+import 'package:FeSekka/widgets/loader.dart';
 import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -444,9 +445,7 @@ class _AddProdcutState extends State<AddProdcut> {
             height: 10,
           ),
           isLoading
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? Loader()
               : InkWell(
                   onTap: () => addProducttoServer(),
                   child: Padding(

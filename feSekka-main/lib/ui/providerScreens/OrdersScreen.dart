@@ -3,6 +3,7 @@ import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/provider/providerOrders.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/providerScreens/orderDetail.dart';
+import 'package:FeSekka/widgets/loader.dart';
 import 'package:FeSekka/widgets/provider/providerDrawer.dart';
 import 'package:flutter/material.dart';
 
@@ -32,9 +33,7 @@ class _OrderScreenState extends State<OrderScreen> {
       appBar: AppBar(),
       drawer: ProviderDrawer(),
       body: isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
+          ?Loader()
           : orders.isEmpty
               ? Center(
                   child: Text(

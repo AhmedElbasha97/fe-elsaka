@@ -1,6 +1,7 @@
 import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/model/provider/sliderImg.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
+import 'package:FeSekka/widgets/loader.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,9 +57,7 @@ class _SliderScreenState extends State<SliderScreen> {
         ],
       ),
       body: loading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
+          ? Loader()
           : ListView.builder(
               itemCount: data.length,
               itemBuilder: (BuildContext context, int index) {

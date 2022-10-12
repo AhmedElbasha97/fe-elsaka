@@ -2,6 +2,7 @@ import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/provider/product.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/providerScreens/addProduct.dart';
+import 'package:FeSekka/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
@@ -49,9 +50,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
         ],
       ),
       body: isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
+          ? Loader()
           : ListView.builder(
               itemCount: products.length,
               itemBuilder: (BuildContext context, int index) {

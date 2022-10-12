@@ -5,6 +5,7 @@ import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/provider/profileData.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/providerScreens/editProviderScreen.dart';
+import 'package:FeSekka/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,9 +45,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     return Scaffold(
       appBar: AppBar(),
       body: isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
+          ? Loader()
           : ListView(
               children: [
                 Padding(

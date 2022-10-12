@@ -11,6 +11,7 @@ import 'package:FeSekka/services/appInfo.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/map_screen.dart';
 import 'package:FeSekka/ui/providerScreens/OrdersScreen.dart';
+import 'package:FeSekka/widgets/loader.dart';
 import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,26 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
   final picker = ImagePicker();
   ImageSource imgSrc = ImageSource.gallery;
   PickedFile? img;
+  Future<void> getCountryName() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> address =
+    await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark placeMark = address.first;
+    String? country = placeMark.country;
+    print(address.first);
+    print(country);
+    setState(() {
+      for(var item in countriesData!.data!){
+        if(item.titleen?.toLowerCase()==country?.toLowerCase()) {
+          selectedCountry=item;
+          print(selectedCountry);
+        }
 
+      }
+    });
+    // this will return country name
+  }
   getCountry() async {
     countriesData = await AppInfoService().getCountries();
     try {
@@ -52,6 +72,7 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
         selectedCountry = countriesData!.data!.first;
       }
     }
+    getCountryName();
     loading = false;
     setState(() {});
   }
@@ -164,9 +185,7 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
           ),
         ),
         body: loading
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
+            ? Loader()
             : SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -582,104 +601,7 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
                         ),
                       ),
                     ),
-                    // Padding(padding: EdgeInsets.only(top: 25)),
-                    // Padding(
-                    //   padding: const EdgeInsets.all(8.0),
-                    //   child: InkWell(
-                    //       onTap: () {
-                    //         showAdaptiveActionSheet(
-                    //           context: context,
-                    //           title: Center(
-                    //             child: Text(
-                    //               "${AppLocalizations.of(context).translate('country')}",
-                    //               textAlign: TextAlign.start,
-                    //               style: TextStyle(fontSize: 20),
-                    //             ),
-                    //           ),
-                    //           actions: countriesData.data
-                    //               .map<BottomSheetAction>((Datum value) {
-                    //             return BottomSheetAction(
-                    //                 title: Padding(
-                    //                   padding: const EdgeInsets.all(8.0),
-                    //                   child: Row(
-                    //                     mainAxisAlignment:
-                    //                         MainAxisAlignment.spaceBetween,
-                    //                     children: [
-                    //                       Text(
-                    //                         '${Localizations.localeOf(context).languageCode == "en" ? value.titleen : value.titlear}',
-                    //                         textAlign: TextAlign.start,
-                    //                         style: TextStyle(fontSize: 13),
-                    //                       ),
-                    //                       Row(
-                    //                         children: [
-                    //                           Text(
-                    //                             '${value.code}',
-                    //                             textAlign: TextAlign.start,
-                    //                             style: TextStyle(fontSize: 13),
-                    //                           ),
-                    //                           SizedBox(
-                    //                             width: 15,
-                    //                           ),
-                    //                           Container(
-                    //                             width: 30,
-                    //                             height: 30,
-                    //                             child: CachedNetworkImage(
-                    //                                 imageUrl: "${value.image}"),
-                    //                           ),
-                    //                         ],
-                    //                       )
-                    //                     ],
-                    //                   ),
-                    //                 ),
-                    //                 onPressed: () {
-                    //                   selectedCountry = value;
-                    //                   saveCountry(selectedCountry);
-                    //                   setState(() {});
-                    //                   Navigator.of(context).pop();
-                    //                 });
-                    //           }).toList(),
-                    //         );
-                    //       },
-                    //       child: Container(
-                    //         width: MediaQuery.of(context).size.width * 0.8,
-                    //         height: 45,
-                    //         padding: EdgeInsets.symmetric(horizontal: 15),
-                    //         decoration: BoxDecoration(
-                    //           borderRadius:
-                    //               BorderRadius.all(Radius.circular(10)),
-                    //           border: Border.all(color: Color(0xFF0D986A)),
-                    //         ),
-                    //         child: Padding(
-                    //           padding: const EdgeInsets.all(8.0),
-                    //           child: Row(
-                    //             mainAxisAlignment:
-                    //                 MainAxisAlignment.spaceAround,
-                    //             children: [
-                    //               Text(
-                    //                 selectedCountry == null
-                    //                     ? "${AppLocalizations.of(context).translate('selectCountry')}"
-                    //                     : Localizations.localeOf(context)
-                    //                                 .languageCode ==
-                    //                             "en"
-                    //                         ? "${selectedCountry.titleen}"
-                    //                         : "${selectedCountry.titlear}",
-                    //                 style: TextStyle(
-                    //                     color: Colors.grey[600], fontSize: 20),
-                    //                 textAlign: TextAlign.start,
-                    //               ),
-                    //               Container(
-                    //                 width: 50,
-                    //                 height: 50,
-                    //                 child: CachedNetworkImage(
-                    //                     imageUrl: selectedCountry == null
-                    //                         ? ""
-                    //                         : "${selectedCountry.image}"),
-                    //               )
-                    //             ],
-                    //           ),
-                    //         ),
-                    //       )),
-                    // ),
+
                     Padding(padding: EdgeInsets.only(top: 25)),
                     InkWell(
                       onTap: () {
