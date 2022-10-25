@@ -8,7 +8,6 @@ import 'package:FeSekka/ui/men_or_women.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'map_screen.dart';
@@ -24,7 +23,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? userAddress;
   DateTime dateTime = DateTime.now();
   String? birthDate ="";
-  late Country data;
+  late Country? data;
   Datum? selectedCountry;
   Future<void> getCountryName() async {
     Position position = await Geolocator.getCurrentPosition(
@@ -36,7 +35,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     print(address.first);
     print(country);
     setState(() {
-      for(var item in data.data!){
+      for(var item in data!.data!){
         if(item.titleen?.toLowerCase()==country?.toLowerCase()) {
           selectedCountry=item;
           print(selectedCountry);
@@ -49,11 +48,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   getData() async {
     // title = await AppDataService().getCvTitle();
     data = (await AppInfoService().getCountries())!;
-    if (data.data!.isNotEmpty) {
-      selectedCountry = data.data!.first;
+    if (data!.data!.isNotEmpty) {
+      selectedCountry = data!.data!.first;
     }
-    isLoading = false;
+
     getCountryName();
+    isLoading = false;
     setState(() {});
   }
 
@@ -67,6 +67,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     token = prefs.getString('token');
+    getData();
     Response response = await Dio().post("https://fe-alsekkah.com/api/info",
         options: Options(headers: {"token": "$token"}));
 
@@ -75,7 +76,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     mobileController.text = response.data['data'][0]['mobile'];
     birthDate = response.data['data'][0]['birth_date'];
     userAddress = response.data['data'][0]['address'];
-    getData();
+
     isLoading = false;
     setState(() {});
 
@@ -228,7 +229,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.65,
+                            width: MediaQuery.of(context).size.width * 0.8,
                             child: TextField(
                               controller: mobileController,
                               keyboardType: TextInputType.number,
@@ -263,7 +264,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   textAlign: TextAlign.start,
                                   style: TextStyle(fontSize: 12),
                                 ),
-                                actions: data.data!
+                                actions: data!.data!
                                     .map<BottomSheetAction>(
                                         (Datum value) {
                                       return BottomSheetAction(
@@ -310,10 +311,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             },
                             child: Row(
                               children: [
-                                Image.network(selectedCountry == null ? data.data!.first.image! : selectedCountry!.image!,height: 35,width: 35,),
+                                Image.network(selectedCountry == null ? data!.data!.first.image! : selectedCountry!.image!,height: 35,width: 35,),
                                 SizedBox(width: 10,),
                                 Text(
-                                    "${selectedCountry == null ? data.data!.first.code : selectedCountry!.code}"),
+                                    "${selectedCountry == null ? data!.data!.first.code : selectedCountry!.code}"),
                               ],
                             ),
                           )

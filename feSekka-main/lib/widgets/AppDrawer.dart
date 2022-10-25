@@ -3,6 +3,7 @@
 import 'package:FeSekka/I10n/AppLanguage.dart';
 import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/globals/utils.dart';
+import 'package:FeSekka/services/appInfo.dart';
 import 'package:FeSekka/splash_screen.dart';
 import 'package:FeSekka/ui/about_app_screen.dart';
 import 'package:FeSekka/ui/contact_us_screen.dart';
@@ -338,6 +339,26 @@ class _AppDrawerState extends State<AppDrawer> {
             endIndent: 30,
             indent: 30,
           ),
+          widget.token == null || widget.token!.isEmpty
+              ? Container()
+              : ListTile(
+            title: Text(
+                "حذف الحساب",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF66a5b4),
+                    fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.delete_forever, color: Color(0xFF66a5b4)),
+            onTap: () async {
+              showTheDialog(context);
+            },
+          ),
+          Divider(
+            height: 1,
+            thickness: 2,
+            endIndent: 30,
+            indent: 30,
+          ),
           ListTile(
             title: Text("${AppLocalizations.of(context)!.translate('callUs')}",
                 style: TextStyle(
@@ -423,7 +444,59 @@ class _AppDrawerState extends State<AppDrawer> {
       ),
     );
   }
-
+  void showTheDialog(BuildContext context,
+      {Widget? extraAction}) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        List<Widget> actions = [];
+        actions.add(
+          ElevatedButton(
+            child: Text("نعم احذف الحساب"),
+            onPressed: () async {
+              SharedPreferences prefs =
+              await SharedPreferences.getInstance();
+              String id =  prefs.getString("id")??"";
+             var res= await AppInfoService().deleteAccountForEver(id);
+             print(res);
+             if(res == "success"){
+              prefs.clear();
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => SplashScreen(),
+              ));}
+            },
+          ),
+        );
+        actions.add(
+          ElevatedButton(
+            child: Text("لا تسجيل الخروج من الحساب فقط"),
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.clear();
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => SplashScreen(),
+              ));
+            },
+          ),
+        );
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+          title: Text("حذف الحساب"),
+          content: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.12,
+            child: Column(
+              children: <Widget>[
+                Text("سوف يتم حذف الحساب نهائيًا وسوف يكون عليك تسجيل من جديد مره اخرى"),
+              ],
+            ),
+          ),
+          actions: actions,
+        );
+      },
+    );
+  }
   Future<Future<bool?>> _showAlertDialog() async {
     return showDialog<bool>(
         context: context,

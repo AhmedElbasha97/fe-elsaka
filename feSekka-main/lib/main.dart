@@ -1,7 +1,6 @@
 import 'package:FeSekka/I10n/AppLanguage.dart';
 import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/testUserScreen.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,13 +11,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   AppLanguage appLanguage = AppLanguage();
   await appLanguage.fetchLocale();
+  runApp(MyApp(appLanguage: appLanguage)); // Wrap your app
 
-  runApp(
-      DevicePreview(
-        enabled: true,
-        builder: (context) => MyApp(appLanguage: appLanguage) // Wrap your app
-      ),
-     );
 }
 
 class MyApp extends StatefulWidget {

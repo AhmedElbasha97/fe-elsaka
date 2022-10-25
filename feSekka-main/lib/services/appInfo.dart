@@ -9,6 +9,7 @@ class AppInfoService {
   final String complement = "service/provider/complain";
   final String orderProgram = "service/provider/program/orders";
   final String orderStatus = "service/provider/program";
+  final String deleteAccount = "service/provider/delete/account";
 
   Future<Country?> getCountries() async {
     Response response;
@@ -62,7 +63,23 @@ class AppInfoService {
     }
     return program;
   }
+  Future deleteAccountForEver(String id) async {
+    Response response;
+    try{
+      response = await Dio().post("$url$deleteAccount",data: {"provider_id":"$id",});
+      if(response.data['status'] == true) {
+        return 'success';
+      }
+      else{
+        return response.data['message'];
+      }
 
+    }
+    on DioError catch(e){
+      print('error in LoginService => ${e.response}');
+      return e.response;
+    }
+  }
   sendProgramOrder({String? country, String? name, String? mobile}) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
