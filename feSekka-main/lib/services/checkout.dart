@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:FeSekka/model/cerditData.dart';
 
 class Checkout {
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String checkoutEndPoint = "checkout";
   final String creditData = "credit";
 

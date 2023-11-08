@@ -50,7 +50,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   getSocialMediaLinks() async {
-    Response response = await Dio().get("https://fe-alsekkah.com/api/settings");
+    Response response = await Dio().get("https://carserv.net/api/settings");
     facebookUrl = response.data['facebook'];
     twitterUrl = response.data['twitter'];
     youtubeUrl = response.data['youtube'];

@@ -10,7 +10,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceProviderService {
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String login = "service/provider/login";
   final String signup = "service/provider/signup";
   final String edit = "service/provider/profile";

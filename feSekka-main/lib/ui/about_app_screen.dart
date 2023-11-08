@@ -13,7 +13,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
   String? term = "";
 
   getTermTxt() async {
-    Response response = await Dio().get("https://fe-alsekkah.com/api/settings");
+    Response response = await Dio().get("https://carserv.net/api/settings");
     term = response.data['about_app'];
     setState(() {});
   }

@@ -5,7 +5,7 @@ import 'package:FeSekka/model/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GetProducts{
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String category="products/category/";
   final String subCategory="products/subcategory/";
   static List? categoryPhotos;

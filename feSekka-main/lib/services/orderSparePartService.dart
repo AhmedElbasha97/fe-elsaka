@@ -9,7 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderSparepartService {
-  final String baseUrl = "https://fe-alsekkah.com/api/";
+  final String baseUrl = "https://carserv.net/api/";
   final String order = "cars/parts/orders";
   final String types = "cars/types";
   final String models = "cars/models/";

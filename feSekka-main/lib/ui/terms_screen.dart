@@ -12,7 +12,7 @@ class _TermsScreenState extends State<TermsScreen> {
   String? term = "";
 
   getTermTxt() async {
-    Response response = await Dio().get("https://fe-alsekkah.com/api/settings");
+    Response response = await Dio().get("https://carserv.net/api/settings");
     term = response.data['terms'];
     setState(() {});
   }

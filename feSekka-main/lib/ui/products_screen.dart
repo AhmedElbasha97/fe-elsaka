@@ -171,7 +171,7 @@ class _ProductsScreenState extends State<ProductsScreen>
     _launchURL(String url,String nameOfSocialProgram) async {
       if(url == "" || url == "https://wa.me/" || url == "tel:"){
         _showDialog(Localizations.localeOf(context).languageCode == "en"
-            ?"the $nameOfSocialProgram is not available at the moment": "منصة $nameOfSocialProgram  غير متاحه الان",  Localizations.localeOf(context).languageCode == "en"
+            ? "the $nameOfSocialProgram is not available at the moment": " منصة $nameOfSocialProgram  غير متاحه الان  ",  Localizations.localeOf(context).languageCode == "en"
             ?"sorry":"عذرا",false);
       }
       if (await launchUrl(Uri.parse(url))) {
@@ -433,7 +433,7 @@ class _ProductsScreenState extends State<ProductsScreen>
   }
 
   getSeachedItems() async {
-    Response response = await Dio().post("https://fe-alsekkah.com/api/search",
+    Response response = await Dio().post("https://carserv.net/api/search",
         data: {"keyword": "${searchController.text}"});
     isLoading = true;
     setState(() {});
@@ -474,7 +474,7 @@ class _ProductsScreenState extends State<ProductsScreen>
     isNewFilterSelected ? newFilter = "new" : newFilter = "";
 
     Response response =
-        await Dio().post("https://fe-alsekkah.com/api/search", data: {
+        await Dio().post("https://carserv.net/api/search", data: {
       "filter1": "$highestPriceFilter",
       "filter2": "$lowestPriceFilter",
       "filter3": "$discountFilter",

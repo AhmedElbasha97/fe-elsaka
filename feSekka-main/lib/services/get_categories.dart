@@ -7,7 +7,7 @@ import 'package:FeSekka/model/category.dart';
 import 'package:FeSekka/model/main_model.dart';
 
 class GetCategories {
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String category = "category";
   final String main = "main/";
   final String location = "/location";
@@ -27,6 +27,7 @@ class GetCategories {
       response = await Dio().get(link);
       List data = response.data;
       data.forEach((element) {
+        print(element);
         categoryModelList.add(CategoryModel.fromJson(element));
       });
     } on DioError catch (e) {
@@ -40,8 +41,10 @@ class GetCategories {
     List<MainCategory> categoryModelList = <MainCategory>[];
     try {
       response = await Dio().get('$url$main$category');
+      print('$url$main$category');
       List data = response.data;
       data.forEach((element) {
+        print(element);
         categoryModelList.add(MainCategory.fromJson(element));
       });
     } on DioError catch (e) {

@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationService{
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String registrationEndPoint="register";
 
   Future registrationService({String? name, String? email, String? phone,String? password,String? gender, String? address, String? birthdayDate,double? lat,double? long}) async{

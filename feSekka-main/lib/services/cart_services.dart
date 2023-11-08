@@ -5,7 +5,7 @@ import 'package:FeSekka/model/cart_product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CartServices {
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String viewCartEndpoint = "mycart";
   final String addToCartEndpoint = "cart";
   final String removeFromCartEndpoint = "deletecart";

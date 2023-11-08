@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:FeSekka/model/product.dart';
 
 class GetAllProducts {
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String category = "products/page/";
   final String byCategory = "products/maincategory";
 

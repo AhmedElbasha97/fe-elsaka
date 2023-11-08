@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppInfoService {
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String countries = "service/provider/countries";
   final String complement = "service/provider/complain";
   final String orderProgram = "service/provider/program/orders";

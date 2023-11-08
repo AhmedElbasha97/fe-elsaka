@@ -18,7 +18,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
 
   getContacts() async {
     Response response =
-        await Dio().get("https://fe-alsekkah.com/api/settings");
+        await Dio().get("https://carserv.net/api/settings");
     phoneTxt = response.data['mobile'];
     emailTxt = response.data['email'];
     isLoading = false;

@@ -5,7 +5,7 @@ import 'package:FeSekka/model/orders.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GetMyOrders {
-  final String url = "https://fe-alsekkah.com/api/";
+  final String url = "https://carserv.net/api/";
   final String orders = "orders";
   final String confirmOrder = "confirm/order";
 

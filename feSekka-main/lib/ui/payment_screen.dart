@@ -141,7 +141,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     token = prefs.getString('token');
     await getLocation();
-    Response response = await Dio().post("https://fe-alsekkah.com/api/info",
+    Response response = await Dio().post("https://carserv.net/api/info",
         options: Options(headers: {"token": "$token"}));
     print('**************************');
     print(response.data);
