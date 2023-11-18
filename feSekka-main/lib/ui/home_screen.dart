@@ -164,6 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
     for (int i = 0; i < productModelList.length; i++) {
       print(i);
       print(productModelList[i].quantity);
+      print(productModelList[i].provider?.whatsapp??"");
+      print(productModelList[i].shareurl??"");
       print('--------');
     }
     print('******************************************');
@@ -638,6 +640,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             padding: EdgeInsets.symmetric(
                                                 vertical: 5, horizontal: 5),
                                             child: LinearProductCard(
+                                              shareurl:productModelList[index].shareurl??"" ,
                                               id: productModelList[index].id,
                                               providerId:
                                                   productModelList[index]

@@ -10,6 +10,7 @@ class ProductModel {
   String? detailsEn;
   int? quantity;
   ProviderModel? provider;
+  String? shareurl;
 
   ProductModel(
       {this.id,
@@ -22,7 +23,9 @@ class ProductModel {
       this.salePrice,
       this.detailsAr,
       this.detailsEn,
-      this.provider});
+      this.provider,
+        this.shareurl,
+      });
 
   factory ProductModel.fromJson(Map<String, dynamic> parsedJson) {
     return ProductModel(
@@ -34,11 +37,13 @@ class ProductModel {
         video: parsedJson['youtube1'].contains("http")
             ? parsedJson['youtube1']
             : "",
+        shareurl: parsedJson["shareurl"],
         salePrice: parsedJson['sale'],
         detailsAr: parsedJson['details_ar'],
         detailsEn: parsedJson['details_en'],
         quantity: parsedJson['in_mycart'],
-        provider: ProviderModel.fromJson(parsedJson['provider'])
+        provider: ProviderModel.fromJson(parsedJson['provider'],
+        )
         //subCategory: subCategoryList
         );
   }

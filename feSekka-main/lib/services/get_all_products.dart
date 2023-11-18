@@ -16,6 +16,7 @@ class GetAllProducts {
     Datum? county;
     county = await getCountry();
     String link = "$url$category$page";
+    print(link);
     if (county != null) {
       link += "?country=${county.countryId}";
     }
@@ -43,10 +44,12 @@ class GetAllProducts {
     Datum? county;
     county = await getCountry();
     String link = "$url$byCategory/$id/page/$page";
+
     if (county != null) {
       link += "?country=${county.countryId}";
     }
     try {
+      print("hi url ${link}");
       if (token == null)
         response = await Dio().get(link);
       else

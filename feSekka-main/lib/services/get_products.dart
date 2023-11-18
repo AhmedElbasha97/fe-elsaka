@@ -18,6 +18,7 @@ class GetProducts{
     List<ProductModel> productModelList = <ProductModel>[];
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String token = preferences.getString("token") ?? "";
+    print("$url$category$categoryId/page/$page");
     try {
       token.isEmpty
           ? response = await Dio().get("$url$category$categoryId/page/$page")

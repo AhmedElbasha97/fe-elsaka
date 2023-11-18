@@ -154,6 +154,7 @@ class _ProductsScreenState extends State<ProductsScreen>
   getCartProducts() async {
     var productModelList = await CartServices().viewCart(false);
     productModelList.forEach((element) {
+
       cart.add(element.id);
     });
   }
@@ -169,6 +170,8 @@ class _ProductsScreenState extends State<ProductsScreen>
 
 
     _launchURL(String url,String nameOfSocialProgram) async {
+    print("hiiiiiiii");
+    print(url);
       if(url == "" || url == "https://wa.me/" || url == "tel:"){
         _showDialog(Localizations.localeOf(context).languageCode == "en"
             ? "the $nameOfSocialProgram is not available at the moment": " منصة $nameOfSocialProgram  غير متاحه الان  ",  Localizations.localeOf(context).languageCode == "en"
@@ -254,6 +257,7 @@ class _ProductsScreenState extends State<ProductsScreen>
       productModelList =
           await GetProducts().getProducts(widget.categoryId, apiPage);
       if (productModelList.isNotEmpty) {
+
         this.productModelList.addAll(productModelList);
       } else
         apiPage--;
@@ -1089,6 +1093,8 @@ class _ProductsScreenState extends State<ProductsScreen>
                                                                 horizontal: 5),
                                                         child:
                                                             LinearProductCard(
+                                                              shareurl: productModelList[
+                                                              index].shareurl??"",
                                                           whatsappNumber:
                                                               widget.whatsApp,
                                                           id: productModelList[

@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable, unused_field, unnecessary_brace_in_string_interps
 
+import 'dart:io';
+
 import 'package:FeSekka/services/get_categories.dart';
 import 'package:FeSekka/ui/logIn_screen.dart';
 import 'package:FeSekka/ui/signUp_screen.dart';
@@ -30,7 +32,7 @@ class LinearProductCard extends StatefulWidget {
   int? totalAmountInCart;
   String? totalAmount;
   String? whatsappNumber;
-
+  String shareurl;
   LinearProductCard(
       {this.id,
       this.providerId,
@@ -48,7 +50,8 @@ class LinearProductCard extends StatefulWidget {
       this.video,
       this.detailsEn,
       this.whatsappNumber,
-      this.detailsAr});
+      this.detailsAr,
+        required this.shareurl,});
 
   @override
   _LinearProductCardState createState() => _LinearProductCardState();
@@ -152,13 +155,25 @@ class _LinearProductCardState extends State<LinearProductCard> {
     return result;
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  whatsapp(String contact) async {
+
+      try {
+        if (Platform.isIOS) {
+          var iosUrl = "https://wa.me/$contact?text=${Uri.parse(
+          "I saw a service ${widget.titleEn} In the application. Car Surv.\n في تطبيق. كار سيرف. ${widget.titleAr} رأيت خدمة ")}  \n ${widget.shareurl}";
+          await launchUrl(Uri.parse(iosUrl));
+        }
+        else {
+          var androidUrl = "whatsapp://send?phone=$contact&text= ${widget.shareurl}  \n I saw a service ${widget.titleEn} In the application. Car Surv.\n في تطبيق. كار سيرف. ${widget.titleAr} رأيت خدمة " ;
+
+          print(widget.shareurl);
+          await launchUrl(Uri.parse(androidUrl));
+        }
+      } on Exception {
+
+      }
     }
-  }
+
 
   photoSlider() {
     child = map<Widget>(
@@ -540,10 +555,8 @@ class _LinearProductCardState extends State<LinearProductCard> {
                             onTap: () {
                               GetCategories().sendClickCount(
                                   widget.providerId, "whatsapp");
-                              _launchURL(
-                                  "https://wa.me/${widget.whatsappNumber}?text=رأيت خدمتك" +
-                                      "${widget.titleAr}" +
-                                      "في تطبيق كبينة");
+                              whatsapp(
+                                 widget.whatsappNumber??"");
                             },
                             child: Container(
                               height: 30,
