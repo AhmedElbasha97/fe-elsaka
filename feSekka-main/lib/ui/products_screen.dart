@@ -91,9 +91,32 @@ class _ProductsScreenState extends State<ProductsScreen>
   bool isDiscountFilterSelected = false;
   bool isNewFilterSelected = false;
   bool isLoadingFilter = false;
-
+  List<Widget> dotsList = [];
   TabController? tabController;
+  makingDotsForCarouselSlider(int activeIndex){
+    int productLength = child?.length??0;
+    dotsList = [];
+    for(int i=0;i<productLength;i++){
+      dotsList.add(
+          Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: Container(
+                width:10,
+                height:10,
+                decoration:BoxDecoration(
+                    shape:BoxShape.circle,
+                    color:activeIndex == i
+                        ? Color(0xFF0D986A)
+                        : Color(0xFFD8D8D8)),
+              )
 
+
+          )
+      );
+
+    }
+    setState(() {});
+  }
   openMap() async {
     return showDialog<void>(
       context: context,
@@ -186,6 +209,7 @@ class _ProductsScreenState extends State<ProductsScreen>
 
 
   photoSlider() {
+    makingDotsForCarouselSlider(0);
     child = map<Widget>(
       widget.photos!,
       (index, i) {
@@ -326,22 +350,7 @@ class _ProductsScreenState extends State<ProductsScreen>
     imgList = GetProducts.categoryPhotos ?? [];
     if (widget.photos != null && widget.photos!.isNotEmpty) photoSlider();
     isLoading = false;
-    child2 =  imgList.map<Widget>(
 
-          (e) {
-        return Container(
-          width: 8.0,
-          height: 8.0,
-          margin: EdgeInsets.symmetric(
-              vertical: 10.0, horizontal: 5.0),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _current == e
-                  ? Color(0xFF0D986A)
-                  : Color(0xFFD8D8D8)),
-        );
-      },
-    ).toList() ;
     setState(() {});
   }
 
@@ -864,13 +873,15 @@ class _ProductsScreenState extends State<ProductsScreen>
                         itemBuilder: (BuildContext context, int index, int realIndex) {
                           return child![index]!;
                         },
-                              options: CarouselOptions(
-                                autoPlay: true,
-                                enlargeCenterPage: true,
-                                aspectRatio: 2.0,
+                       options: CarouselOptions(
+                       autoPlay: true,
+                       enlargeCenterPage: true,
+                         aspectRatio: 2.0,
                                 onPageChanged: (index, reason) {
+                                  _current = index;
+                                  makingDotsForCarouselSlider(_current);
                                   setState(() {
-                                    _current = index;
+
                                   });
                                 },
                               ),
@@ -893,7 +904,7 @@ class _ProductsScreenState extends State<ProductsScreen>
                       child != null && child!.isNotEmpty
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children:child2
+                              children:dotsList,
                             )
                           : Container(),
                       Padding(padding: EdgeInsets.only(top: 20)),

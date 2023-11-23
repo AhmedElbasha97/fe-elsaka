@@ -59,7 +59,7 @@ class LinearProductCard extends StatefulWidget {
 
 class _LinearProductCardState extends State<LinearProductCard> {
   int? totalAmount;
-  List? child;
+   List<Widget>? child;
   int _current = 0;
   bool? checkBoxValue;
 
@@ -68,9 +68,34 @@ class _LinearProductCardState extends State<LinearProductCard> {
 
   bool isLoadingVideo = false;
   bool _isPlayerReady = false;
-
+  List<Widget> dotsList = [];
   String? token;
+  makingDotsForCarouselSlider(int activeIndex){
+    int productLength = widget.imgList!.length??0;
+    dotsList = [];
+    for(int i=0;i<productLength;i++){
+      dotsList.add(
+          Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Container(
+                width:10,
+                height:10,
+                decoration:BoxDecoration(
+                  shape:BoxShape.circle,
+                  color:activeIndex == i
+                      ? Color(0xFF0D986A)
+                      : Color(0xFFD8D8D8)),
+                )
 
+
+            )
+      );
+
+    }
+    setState(() {
+
+    });
+  }
   checkToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     token = prefs.getString('token') ?? "";
@@ -160,7 +185,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
       try {
         if (Platform.isIOS) {
           var iosUrl = "https://wa.me/$contact?text=${Uri.parse(
-          "I saw a service ${widget.titleEn} In the application. Car Surv.\n في تطبيق. كار سيرف. ${widget.titleAr} رأيت خدمة ")}  \n ${widget.shareurl}";
+          "I saw a service ${widget.titleEn} In the application. Car Serv.\n في تطبيق. كار سيرف. ${widget.titleAr} رأيت خدمة ")}  \n ${widget.shareurl}";
           await launchUrl(Uri.parse(iosUrl));
         }
         else {
@@ -176,14 +201,14 @@ class _LinearProductCardState extends State<LinearProductCard> {
 
 
   photoSlider() {
-    child = map<Widget>(
-      widget.imgList!,
-      (index, i) {
+    child = widget.imgList!.map(
+
+      (e) {
         return Container(
           margin: EdgeInsets.all(5.0),
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            child: Image.network(i, fit: BoxFit.cover, width: 1000.0),
+            child: Image.network(e, fit: BoxFit.cover, width: 1000.0),
           ),
         );
       },
@@ -191,101 +216,93 @@ class _LinearProductCardState extends State<LinearProductCard> {
   }
 
   moreDialog() {
+    makingDotsForCarouselSlider(0);
     showDialog(
       context: context,
-      builder: (BuildContext context) => Dialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        child: Container(
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    onPressed: () {
-                      if (widget.video!.isNotEmpty) _controller.pause();
-                      Navigator.of(context).pop();
-                    },
-                    icon: Icon(
-                      Icons.clear,
-                      color: Colors.red,
+      builder: (BuildContext context) => StatefulBuilder(
+          builder: (context, setState) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+          child: Container(
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      onPressed: () {
+                        if (widget.video!.isNotEmpty) _controller.pause();
+                        Navigator.of(context).pop();
+                      },
+                      icon: Icon(
+                        Icons.clear,
+                        color: Colors.red,
+                      ),
                     ),
                   ),
-                ),
-                child == null || child!.isNotEmpty
-                    ? CarouselSlider(
-                        items: child as List<Widget>?,
-                        options: CarouselOptions(
-                          autoPlay: true,
-                          enlargeCenterPage: true,
-                          aspectRatio: 2.0,
-                          onPageChanged: (index, reason) {
-                            setState(() {
+                  child == null || child!.isNotEmpty
+                      ? CarouselSlider(
+                          items: child,
+                          options: CarouselOptions(
+                            autoPlay: true,
+                            enlargeCenterPage: true,
+                            aspectRatio: 2.0,
+                            onPageChanged: (index, reason) {
                               _current = index;
-                              print('in the slider $_current');
+                              makingDotsForCarouselSlider(index);
+                              setState(() {
+
+
+                              });
+                            },
+                          ),
+                        )
+                      : Container(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: dotsList,
+                  ),
+                  Padding(padding: EdgeInsets.only(top: 10)),
+                  widget.video!.isNotEmpty
+                      ? InkWell(
+                          onTap: () {
+                            setState(() {
+                              _controller.value.isPlaying
+                                  ? _controller.pause()
+                                  : _controller.play();
                             });
                           },
-                        ),
-                      )
-                    : Container(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: map<Widget>(
-                    widget.imgList!,
-                    (index, url) {
-                      return Container(
-                        width: 8.0,
-                        height: 8.0,
-                        margin: EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 5.0),
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _current == index
-                                ? Color(0xFF0D986A)
-                                : Color(0xFFD8D8D8)),
-                      );
-                    },
-                  ) as List<Widget>,
-                ),
-                Padding(padding: EdgeInsets.only(top: 10)),
-                widget.video!.isNotEmpty
-                    ? InkWell(
-                        onTap: () {
-                          setState(() {
-                            _controller.value.isPlaying
-                                ? _controller.pause()
-                                : _controller.play();
-                          });
-                        },
-                        child: SizedBox(
-                          height: 200,
-                          child: YoutubePlayer(
-                            controller: _controller,
-                            showVideoProgressIndicator: true,
-                            aspectRatio: 16 / 9,
-                          ),
-                        ))
-                    : Container(),
-                Padding(padding: EdgeInsets.only(top: 20)),
-                Text(
-                  "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
-                  style: TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
-                ),
-                Padding(padding: EdgeInsets.only(top: 10)),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  alignment: Alignment.topRight,
-                  child: Text(
-                    "${Localizations.localeOf(context).languageCode == "en" ? widget.detailsEn : widget.detailsAr}",
-                    textAlign: TextAlign.right,
+                          child: SizedBox(
+                            height: 200,
+                            child: YoutubePlayer(
+                              controller: _controller,
+                              showVideoProgressIndicator: true,
+                              aspectRatio: 16 / 9,
+                            ),
+                          ))
+                      : Container(),
+                  Padding(padding: EdgeInsets.only(top: 20)),
+                  Text(
+                    "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
+                    style: TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.bold),
                   ),
-                ),
-              ],
+                  Padding(padding: EdgeInsets.only(top: 10)),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                    alignment: Alignment.topRight,
+                    child: Text(
+                      "${Localizations.localeOf(context).languageCode == "en" ? widget.detailsEn : widget.detailsAr}",
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+        );
+          }
       ),
     );
   }
@@ -360,6 +377,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
     } else {
       totalAmount = int.parse(widget.totalAmount!);
     }
+
   }
 
   @override

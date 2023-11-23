@@ -40,7 +40,7 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
 
   final picker = ImagePicker();
   ImageSource imgSrc = ImageSource.gallery;
-  PickedFile? img;
+  File? img;
   Future<void> getCountryName() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
@@ -85,9 +85,25 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
   // late PickResult selectedPlace;
   TextEditingController addressController = TextEditingController();
   Position? position;
-
+  final ImagePicker _picker = ImagePicker();
   getLocation() async {
     // position = await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
+  Future<void> getImageFromUserThroughCamera() async {
+    XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    img = File(image!.path);
+    setState(() {
+
+    });
+  }
+
+  //get image from user through gallery
+  Future<void> getImageFromUserThroughGallery() async {
+    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    img = File(image!.path);
+    setState(() {
+
+    });
   }
   void _navigateAndDisplaySelection(BuildContext context) async {
 
@@ -196,9 +212,13 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
                     Center(
                       child: InkWell(
                         onTap: () async {
-                          bool done = await (selectImageSrc() as FutureOr<bool>);
-                          if (done) {
-                            img = await picker.getImage(source: imgSrc);
+                          bool? done = await selectImageSrc() ;
+                          if (done??false) {
+                            if(imgSrc == ImageSource.camera) {
+                            await getImageFromUserThroughCamera();
+                            }else{
+                            await getImageFromUserThroughGallery();
+                            }
                             setState(() {});
                           }
                         },

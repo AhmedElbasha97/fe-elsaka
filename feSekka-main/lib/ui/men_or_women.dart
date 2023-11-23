@@ -10,6 +10,7 @@ import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/model/main_model.dart';
 import 'package:FeSekka/services/get_categories.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 
@@ -24,9 +25,15 @@ class _MenOrWomenState extends State<MenOrWomen> {
   late List imgList;
   List? child;
   int _current = 0;
+  List<Widget> dotsList = [];
   final CarouselController _controller = CarouselController();
   String? name;
   String? token;
+  AppUpdateInfo? _updateInfo;
+
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+
+  bool _flexibleUpdateAvailable = false;
 
   Future getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -48,8 +55,35 @@ class _MenOrWomenState extends State<MenOrWomen> {
     return result;
   }
 
+  makingDotsForCarouselSlider(int activeIndex){
+    int productLength =imgList?.length??0;
+    dotsList = [];
+    for(int i=0;i<productLength;i++){
+      dotsList.add(
+          Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: Container(
+                width:10,
+                height:10,
+                decoration:BoxDecoration(
+                    shape:BoxShape.circle,
+                    color:activeIndex == i
+                        ? Color(0xFF0D986A)
+                        : Color(0xFFD8D8D8)),
+              )
+
+
+          )
+      );
+
+    }
+    setState(() {
+
+    });
+  }
   photoSlider() async {
     await getPhotoSlider();
+    makingDotsForCarouselSlider(0);
     print(imgList.first);
     child = map<Widget>(
       imgList,
@@ -81,10 +115,33 @@ class _MenOrWomenState extends State<MenOrWomen> {
   @override
   void initState() {
     super.initState();
-
+    checkForUpdate();
     getMainCategories();
   }
+  Future<void> checkForUpdate() async {
+    InAppUpdate.checkForUpdate().then((info) {
+     if( _updateInfo?.updateAvailability ==
+          UpdateAvailability.updateAvailable) {
+       InAppUpdate.performImmediateUpdate()
+           .catchError((e) {
 
+         return AppUpdateResult.inAppUpdateFailed;
+       });
+     }
+      setState(() {
+        _updateInfo = info;
+      });
+    }).catchError((e) {
+
+    });
+  }
+
+  void showSnack(String text) {
+    if (_scaffoldKey.currentContext != null) {
+      ScaffoldMessenger.of(_scaffoldKey.currentContext!)
+          .showSnackBar(SnackBar(content: Text(text)));
+    }
+  }
   getMainCategories() async {
     await getUserData();
     list = await GetCategories().getMainCategory();
@@ -98,6 +155,7 @@ class _MenOrWomenState extends State<MenOrWomen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       drawer: isLoading ? Container() : AppDrawer(token, name),
       appBar: AppBar(
         backgroundColor: Color(0xFF66a5b4),
@@ -133,11 +191,17 @@ class _MenOrWomenState extends State<MenOrWomen> {
                           enlargeCenterPage: true,
                           aspectRatio: 2.0,
                           onPageChanged: (index, reason) {
+                            makingDotsForCarouselSlider(_current);
+                            _current = index;
                             setState(() {
-                              _current = index;
+
                             });
                           },
                         ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: dotsList,
                       ),
                       AnimationLimiter(
                         child: ListView.builder(

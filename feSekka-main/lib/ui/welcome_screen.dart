@@ -4,6 +4,7 @@ import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/ui/home_screen.dart';
 import 'package:FeSekka/ui/signUp_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'logIn_screen.dart';
@@ -17,7 +18,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   String? welcomeText="";
   bool isLoading=true;
+  AppUpdateInfo? _updateInfo;
 
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  bool _flexibleUpdateAvailable = false;
   getWelcomeTxt() async{
     Response response = await Dio().get("https://fe-alsekkah.com/api/settings");
     welcomeText = response.data['welcome'];
@@ -25,6 +29,38 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   late String token;
+  Future<void> checkForUpdate() async {
+    InAppUpdate.checkForUpdate().then((info) {
+      if( _updateInfo?.updateAvailability ==
+          UpdateAvailability.updateAvailable) {
+        InAppUpdate.performImmediateUpdate()
+            .catchError((e) {
+          if( _updateInfo?.updateAvailability ==
+              UpdateAvailability.updateAvailable) {
+            InAppUpdate.performImmediateUpdate()
+                .catchError((e) {
+
+              return AppUpdateResult.inAppUpdateFailed;
+            });
+          }
+
+          return AppUpdateResult.inAppUpdateFailed;
+        });
+      }
+      setState(() {
+        _updateInfo = info;
+      });
+    }).catchError((e) {
+      showSnack(e.toString());
+    });
+  }
+
+  void showSnack(String text) {
+    if (_scaffoldKey.currentContext != null) {
+      ScaffoldMessenger.of(_scaffoldKey.currentContext!)
+          .showSnackBar(SnackBar(content: Text(text)));
+    }
+  }
   checkToken() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     token = prefs.getString('token')??"";
@@ -44,11 +80,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     super.initState();
     getData();
+    checkForUpdate();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,

@@ -35,6 +35,6 @@ class _TermsScreenState extends State<TermsScreen> {
           ),
           centerTitle: true,
         ),
-        body: Html(data: "$term"));
+        body: SingleChildScrollView(child: Html(data: "$term")));
   }
 }

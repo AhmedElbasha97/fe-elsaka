@@ -18,7 +18,17 @@ class _AddCatogoryPageState extends State<AddCatogoryPage> {
   ImageSource imgSrc = ImageSource.gallery;
   PickedFile? img;
   bool isLoading = false;
+  final ImagePicker _picker = ImagePicker();
+  Future<void> getImageFromUserThroughCamera() async {
+    XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    img = PickedFile(image!.path);
+  }
 
+  //get image from user through gallery
+  Future<void> getImageFromUserThroughGallery() async {
+    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    img = PickedFile(image!.path);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,9 +41,18 @@ class _AddCatogoryPageState extends State<AddCatogoryPage> {
           Center(
             child: InkWell(
               onTap: () async {
-                bool done = await (selectImageSrc() as FutureOr<bool>);
-                if (done) {
-                  img = await picker.getImage(source: imgSrc);
+                bool? done = await selectImageSrc() ;
+                if (done??false) {
+                if(imgSrc == ImageSource.camera) {
+                await getImageFromUserThroughCamera();
+                setState(() {
+                });
+                }else{
+                await getImageFromUserThroughGallery();
+                setState(() {
+                });
+                }
+
                 }
               },
               child: Container(

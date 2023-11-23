@@ -33,12 +33,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
+  List<Widget> dotsList = [];
   bool isLoadingMoreData = false;
   bool isSearchClicked = false;
   bool isLoadingProducts = false;
   final CarouselController _controller = CarouselController();
   int _current = 0;
-  late List<Widget> child2;
+
   int apiPage = 1;
   int totalProductsInCart = 0;
   bool isCategoryOn = false;
@@ -122,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
     totalProductsInCart = CartServices.totalQuantity ?? 0;
     if (mounted) setState(() {});
   }
+
 
   getCategoriesByLocation(double lat, double long) async {
     categoryModelList.clear();
@@ -226,12 +228,38 @@ class _HomeScreenState extends State<HomeScreen> {
   getPhotoSlider() async {
     imgList = await GetPhotoSlider().getPhotoSlider();
   }
+  makingDotsForCarouselSlider(int activeIndex){
+    int productLength = imgList.length;
+    dotsList = [];
+    for(int i=0;i<productLength;i++){
+      dotsList.add(
+          Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: Container(
+                width:10,
+                height:10,
+                decoration:BoxDecoration(
+                    shape:BoxShape.circle,
+                    color:activeIndex == i
+                        ? Color(0xFF0D986A)
+                        : Color(0xFFD8D8D8)),
+              )
 
+
+          )
+      );
+
+    }
+    setState(() {
+
+    });
+  }
   photoSlider() async {
     await getPhotoSlider();
     await getUserData();
     await getAllProducts();
     await getCategories();
+    makingDotsForCarouselSlider(0);
     print(imgList.first);
     child = map<Widget>(
       imgList,
@@ -257,22 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     ).toList();
-    child2 =  imgList.map<Widget>(
 
-          (e) {
-        return Container(
-          width: 8.0,
-          height: 8.0,
-          margin: EdgeInsets.symmetric(
-              vertical: 10.0, horizontal: 5.0),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _current == e
-                  ? Color(0xFF0D986A)
-                  : Color(0xFFD8D8D8)),
-        );
-      },
-    ).toList() ;
     getCategories();
   }
 
@@ -414,15 +427,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       enlargeCenterPage: true,
                       aspectRatio: 2.0,
                       onPageChanged: (index, reason) {
+                        _current = index;
+                        makingDotsForCarouselSlider(index);
                         setState(() {
-                          _current = index;
                         });
                       },
                     ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: child2
+                    children: dotsList,
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,

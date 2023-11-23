@@ -14,12 +14,21 @@ class SliderScreen extends StatefulWidget {
 
 class _SliderScreenState extends State<SliderScreen> {
   bool loading = true;
-  final picker = ImagePicker();
+
   ImageSource imgSrc = ImageSource.gallery;
-
+  final ImagePicker _picker = ImagePicker();
   List<SliderImage> data = [];
-  PickedFile? pickedFile;
+  XFile? pickedFile;
+  Future<void> getImageFromUserThroughCamera() async {
+    pickedFile = await _picker.pickImage(source: ImageSource.camera);
 
+  }
+
+  //get image from user through gallery
+  Future<void> getImageFromUserThroughGallery() async {
+    pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+  }
   @override
   void initState() {
     super.initState();
@@ -125,7 +134,7 @@ class _SliderScreenState extends State<SliderScreen> {
                       onPressed: () async {
                         imgSrc = ImageSource.camera;
                         Navigator.pop(context, true);
-                        pickedFile = await picker.getImage(source: imgSrc);
+                        await getImageFromUserThroughCamera();
                         loading = true;
                         setState(() {});
                         await ServiceProviderService()
@@ -144,7 +153,7 @@ class _SliderScreenState extends State<SliderScreen> {
                       onPressed: () async {
                         imgSrc = ImageSource.gallery;
                         Navigator.pop(context, true);
-                        pickedFile = await picker.getImage(source: imgSrc);
+                      await getImageFromUserThroughGallery();
                         loading = true;
                         setState(() {});
                         await ServiceProviderService()

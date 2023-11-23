@@ -22,6 +22,7 @@ class AddProdcut extends StatefulWidget {
 class _AddProdcutState extends State<AddProdcut> {
   final picker = ImagePicker();
   ImageSource imgSrc = ImageSource.gallery;
+  final ImagePicker _picker = ImagePicker();
   List<File> _images = [];
   bool isLoading = true;
   TextEditingController titleController = TextEditingController();
@@ -35,14 +36,23 @@ class _AddProdcutState extends State<AddProdcut> {
   List<String?> mainCats = [];
   SubCategory? selectedCategory;
   List<MainCategory> catList = [];
-
+  XFile? image;
   getData() async {
     list = await ServiceProviderService().getSubcatogies();
     catList = await GetCategories().getMainCategory();
     isLoading = false;
     setState(() {});
   }
+  Future<void> getImageFromUserThroughCamera() async {
+    image = await _picker.pickImage(source: ImageSource.camera);
+    setState(() {});
+  }
 
+  //get image from user through gallery
+  Future<void> getImageFromUserThroughGallery() async {
+  image = await _picker.pickImage(source: ImageSource.gallery);
+  setState(() {});
+  }
   @override
   void initState() {
     super.initState();
@@ -73,10 +83,14 @@ class _AddProdcutState extends State<AddProdcut> {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () async {
-                      bool done = await (selectImageSrc() as FutureOr<bool>);
-                      if (done) {
-                        getPhoto(index, imgSrc);
+                      bool? done = await selectImageSrc();
+                      if (done??false) {
+                       await getPhoto(index, imgSrc);
+                        setState(() {
+                        });
                       }
+                      setState(() {
+                      });
                     },
                     child: Column(
                       children: <Widget>[
@@ -473,20 +487,29 @@ class _AddProdcutState extends State<AddProdcut> {
   }
 
   getPhoto(int index, ImageSource src) async {
-    final pickedFile = await picker.getImage(source: src);
-    if (pickedFile != null) {
+    if(imgSrc == ImageSource.camera) {
+     await getImageFromUserThroughCamera();
+      setState(() {});
+    }else{
+     await getImageFromUserThroughGallery();
+      setState(() {});
+    }
+    if (image != null) {
       if (_images.isNotEmpty) {
         if (_images.asMap()[index] == null) {
           print('in add');
-          _images.add(File(pickedFile.path));
+          _images.add(File(image!.path));
+          setState(() {});
         } else {
           print('in insert');
-          _images[index] = File(pickedFile.path);
+          _images[index] = File(image!.path);
+          setState(() {});
         }
       } else
-        _images.add(File(pickedFile.path));
+
+        _images.add(File(image!.path));
       print(index);
-      setState(() {});
+
     }
   }
 

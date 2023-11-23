@@ -29,6 +29,8 @@ class _RequestPartScreenState extends State<RequestPartScreen> {
   List<CarYear> years = [];
   List<PartType> partTypes = [];
 
+  final ImagePicker _picker = ImagePicker();
+
   CarType? selectedType;
   CarModel? selectedModel;
   PartQuailty? selectedpartQuailty;
@@ -44,6 +46,16 @@ class _RequestPartScreenState extends State<RequestPartScreen> {
     super.initState();
     getData();
   }
+  Future<void> getImageFromUserThroughCamera() async {
+    XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    img = File(image!.path);
+  }
+
+  //get image from user through gallery
+  Future<void> getImageFromUserThroughGallery() async {
+    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    img = File(image!.path);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +69,18 @@ class _RequestPartScreenState extends State<RequestPartScreen> {
           Center(
             child: InkWell(
               onTap: () async {
-                bool done = await (selectImageSrc() as FutureOr<bool>);
-                if (done) {
-                  PickedFile selectedImg =
-                      (await (picker.getImage(source: imgSrc) as FutureOr<PickedFile>));
-                  img = File(selectedImg.path);
-                }
+                bool? done = await selectImageSrc();
+                if (done??false) {
+                  if(imgSrc == ImageSource.camera) {
+                   await getImageFromUserThroughCamera();
+                   setState(() {
+                   });
+                  }else{
+                   await getImageFromUserThroughGallery();
+                   setState(() {
+                     
+                   });
+                  }}
               },
               child: Container(
                 width: 100,

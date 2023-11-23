@@ -116,7 +116,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         birthdayDate: "${dateTime.day}/${dateTime.month}/${dateTime.year}",
         lat: position == null ? 0.0 : position!.latitude,
         long: position == null ? 0.0 : position!.longitude,
-      ) as FutureOr<String?>);
+      ) as FutureOr<dynamic?>);
       if (response == 'success') {
         pushPageReplacement(context, MenOrWomen());
       } else {
