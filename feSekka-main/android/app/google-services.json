@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "824347095937",
+    "project_id": "carserv-455ec",
+    "storage_bucket": "carserv-455ec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:824347095937:android:5b0b37d8af56aa4f92ae80",
+        "android_client_info": {
+          "package_name": "com.syncapps.feSekka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzdkLTql-RTJInBzAb61qOuyxBf8djP44"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

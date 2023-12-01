@@ -1,6 +1,9 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:io';
+
 import 'package:FeSekka/services/get_categories.dart';
+import 'package:FeSekka/services/stats_services.dart';
 import 'package:FeSekka/ui/logIn_screen.dart';
 import 'package:FeSekka/ui/signUp_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -30,6 +33,8 @@ class GridProductCard extends StatefulWidget {
   String? video;
   String? whatsappNumber;
   int? totalAmount;
+  String shareUrl;
+
 
   GridProductCard(
       {this.id,
@@ -48,7 +53,9 @@ class GridProductCard extends StatefulWidget {
       this.checkBoxMark = false,
       this.detailsEn,
       this.detailsAr,
-      this.whatsappNumber});
+
+      this.whatsappNumber,
+        required this.shareUrl,});
 
   @override
   _GridProductCardState createState() => _GridProductCardState();
@@ -149,12 +156,32 @@ class _GridProductCardState extends State<GridProductCard> {
     return result;
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  whatsapp(String contact) async {
+    String response = await StatService().whatsAppStatService(providerId: widget.providerId??"");
+    if (response == 'success') {
+
+
+    try {
+      if (Platform.isIOS) {
+        var iosUrl = "https://wa.me/$contact?text=${Uri.parse(
+            "I saw a service ${widget
+                .titleEn} In the application. Car Serv.\n في تطبيق. كار سيرف. ${widget
+                .titleAr} رأيت خدمة ")}  \n ${widget.shareUrl}";
+        await launchUrl(Uri.parse(iosUrl));
+      }
+      else {
+        var androidUrl = "whatsapp://send?phone=$contact&text= ${widget
+            .shareUrl}  \n I saw a service ${widget
+            .titleEn} In the application. Car Surv.\n في تطبيق. كار سيرف. ${widget
+            .titleAr} رأيت خدمة ";
+
+
+        await launchUrl(Uri.parse(androidUrl));
+      }
+    } on Exception {
+
     }
+  }
   }
 
   photoSlider() {
@@ -442,10 +469,7 @@ class _GridProductCardState extends State<GridProductCard> {
                       onTap: () {
                         GetCategories()
                             .sendClickCount(widget.providerId, "whatsapp");
-                        _launchURL(
-                            "https://wa.me/${widget.whatsappNumber}?text=رأيت خدمتك" +
-                                "${widget.titleAr}" +
-                                "في تطبيق كبينة");
+                       whatsapp(widget.whatsappNumber??"");
                       },
                       child: Container(
                         height: 30,

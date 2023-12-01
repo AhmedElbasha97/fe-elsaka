@@ -20,6 +20,7 @@ import 'package:FeSekka/services/get_photo_slider.dart';
 import 'package:FeSekka/ui/products_screen.dart';
 import 'package:FeSekka/widgets/home_card.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/loader.dart';
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<CategoryModel> categoryModelList = <CategoryModel>[];
   List<ProductModel> productModelList = <ProductModel>[];
   List<String> cart = <String>[];
-  late Position position;
+  late LatLng position;
 
   String? name;
   String? token;
@@ -134,7 +135,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getLocation() async {
-    // position = await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position res = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      position = LatLng(
+          res.latitude,res.longitude
+      );
+
+    });
     await getCategoriesByLocation(position.latitude, position.longitude);
   }
 
@@ -654,7 +661,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             padding: EdgeInsets.symmetric(
                                                 vertical: 5, horizontal: 5),
                                             child: LinearProductCard(
-                                              shareurl:productModelList[index].shareurl??"" ,
+                                              shareUrl:productModelList[index].shareurl??"" ,
                                               id: productModelList[index].id,
                                               providerId:
                                                   productModelList[index]

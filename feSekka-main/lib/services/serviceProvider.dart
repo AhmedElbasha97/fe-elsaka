@@ -7,6 +7,7 @@ import 'package:FeSekka/model/provider/providerOrders.dart';
 import 'package:FeSekka/model/provider/sliderImg.dart';
 import 'package:FeSekka/model/provider/subcategoryProvider.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceProviderService {
@@ -23,24 +24,44 @@ class ServiceProviderService {
   final String productDelete = "service/provider/products/delete";
   final String addNewProduct = "service/provider/products/add";
   final String subcategory = "service/provider/subcategory/list";
+  final String checkToken  = "service/provider/check/token";
   final String deleteSubCatgoryLink = "service/provider/subcategory/delete";
   final String addsubCatogoryLInk = "service/provider/subcategory/add";
 
-  Future<bool> serviceProviderlogin(String mobile, String password) async {
+  Future<bool?> serviceProviderlogin(String mobile, String password,String token) async {
     bool result = false;
-    var data = {"mobile": mobile, "password": password};
+
+
+    var data = {"mobile": mobile, "password": password,"token":"$token"};
     Response response = await Dio().post("$url$login", data: data);
+
     if (response.data["status"] == true || response.data["status"] == "true") {
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("provider_id", response.data['data']['provider_id']);
       prefs.setString("name", response.data['data']['name']);
       prefs.setString("mobile", response.data['data']['mobile']);
+      prefs.setString("token", token??"");
       result = true;
     }
     return result;
+
+
+  }
+  Future<bool> serviceCheckToken() async {
+    bool result = false;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var mobile = prefs.get("mobile");
+    var token = prefs.get("token");
+    var data = {"mobile": mobile,"token":"$token"};
+    Response response = await Dio().post("$url$checkToken", data: data);
+    if (response.data["status"] == true || response.data["status"] == "true") {
+      result = true;
+    }
+ return result;
   }
 
-  Future<Authresult> serviceProvidersignup(
+  Future<Authresult?> serviceProvidersignup(
       {String? mobile,
       String? password,
       String? username,
@@ -48,9 +69,9 @@ class ServiceProviderService {
       String? lat,
       String? long,
       String? country,
-      File? img}) async {
-    Authresult result;
-
+      File? img,String? token}) async {
+    Authresult? result;
+    FirebaseMessaging.instance.getToken().then((token) async {
     var data = FormData.fromMap({
       "username": username,
       "mobile": mobile,
@@ -59,9 +80,8 @@ class ServiceProviderService {
       "lat": lat,
       "long": long,
       "country_id": country,
-      "image": img == null ? null : await MultipartFile.fromFile('${img.path}')
+      "image": img == null ? null : await MultipartFile.fromFile('${img.path}'),"token":"$token"
     });
-
     Response response = await Dio().post("$url$signup", data: data);
     print(response.data);
     if (response.data["status"] == true || response.data["status"] == true) {
@@ -69,9 +89,12 @@ class ServiceProviderService {
       prefs.setString("provider_id", response.data['data'][0]['provider_id']);
       prefs.setString("name", response.data['data'][0]['name']);
       prefs.setString("mobile", response.data['data'][0]['mobile']);
+      prefs.setString("token", token??"");
     }
     result = Authresult.fromJson(response.data);
+     });
     return result;
+
   }
 
   Future<Authresult> serviceProvideredit(

@@ -2,6 +2,7 @@
 
 import 'package:FeSekka/widgets/AppDrawer.dart';
 import 'package:FeSekka/widgets/loader.dart';
+import 'package:FeSekka/widgets/provider/providerDrawer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:FeSekka/services/get_photo_slider.dart';
@@ -26,6 +27,7 @@ class _MenOrWomenState extends State<MenOrWomen> {
   List? child;
   int _current = 0;
   List<Widget> dotsList = [];
+  late String? providerId;
   final CarouselController _controller = CarouselController();
   String? name;
   String? token;
@@ -115,8 +117,10 @@ class _MenOrWomenState extends State<MenOrWomen> {
   @override
   void initState() {
     super.initState();
+
     checkForUpdate();
     getMainCategories();
+
   }
   Future<void> checkForUpdate() async {
     InAppUpdate.checkForUpdate().then((info) {
@@ -143,6 +147,8 @@ class _MenOrWomenState extends State<MenOrWomen> {
     }
   }
   getMainCategories() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    providerId = prefs.getString('provider_id');
     await getUserData();
     list = await GetCategories().getMainCategory();
     await photoSlider();
@@ -156,7 +162,7 @@ class _MenOrWomenState extends State<MenOrWomen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: isLoading ? Container() : AppDrawer(token, name),
+      drawer: isLoading ? Container(): providerId == null || providerId == ""? AppDrawer(token, name):ProviderDrawer(),
       appBar: AppBar(
         backgroundColor: Color(0xFF66a5b4),
         title: Image.asset(

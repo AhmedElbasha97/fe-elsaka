@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationService{
@@ -6,6 +7,11 @@ class RegistrationService{
   final String registrationEndPoint="register";
 
   Future registrationService({String? name, String? email, String? phone,String? password,String? gender, String? address, String? birthdayDate,double? lat,double? long}) async{
+    FirebaseMessaging.instance.getToken().then((token) async {
+
+
+
+
     Response response;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     FormData formData = FormData.fromMap({
@@ -18,6 +24,7 @@ class RegistrationService{
       "birth_date":"$birthdayDate",
       "lat":"$lat",
       "long":"$long",
+      "token":"$token"
     });
     try{
        response = await Dio().post("$url$registrationEndPoint",data: formData);
@@ -41,6 +48,6 @@ class RegistrationService{
       print('error in RegistrationService => ${e.response}');
       return e.response;
     }
-
+  });
   }
 }

@@ -1,18 +1,32 @@
 import 'package:FeSekka/I10n/AppLanguage.dart';
 import 'package:FeSekka/I10n/app_localizations.dart';
+import 'package:FeSekka/services/notification.dart';
 import 'package:FeSekka/testUserScreen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   AppLanguage appLanguage = AppLanguage();
   await appLanguage.fetchLocale();
-  runApp(MyApp(appLanguage: appLanguage)); // Wrap your app
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
+  FirebaseMessaging.instance.requestPermission();
+  await PushNotificationService().setupInteractedMessage();
+  runApp(MyApp(appLanguage: appLanguage)); // Wrap your app
+  RemoteMessage? initialMessage =
+  await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    // App received a notification when it was killed
+  }
 }
 
 class MyApp extends StatefulWidget {

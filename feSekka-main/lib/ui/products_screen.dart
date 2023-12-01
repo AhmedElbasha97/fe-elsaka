@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/category.dart';
 import 'package:FeSekka/services/get_categories.dart';
+import 'package:FeSekka/services/stats_services.dart';
 import 'package:FeSekka/ui/complementsScreen.dart';
 import 'package:FeSekka/ui/welcome_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -931,11 +932,14 @@ class _ProductsScreenState extends State<ProductsScreen>
                                 color: Color(0xFF66a5b4),
                                 size: 30,
                               ),
-                              onPressed: () {
+                              onPressed: () async {
                                 GetCategories().sendClickCount(
                                     widget.categoryId, "mobile");
+                                String response = await StatService().mobileStatService(providerId: widget.categoryId??"");
+                                if(response=='success'){
+                                  _launchURL("tel:${widget.mobile}","mobile");
+                                }
 
-                                _launchURL("tel:${widget.mobile}","mobile");
                               },
                             ),
                             IconButton(
@@ -1104,7 +1108,7 @@ class _ProductsScreenState extends State<ProductsScreen>
                                                                 horizontal: 5),
                                                         child:
                                                             LinearProductCard(
-                                                              shareurl: productModelList[
+                                                              shareUrl: productModelList[
                                                               index].shareurl??"",
                                                           whatsappNumber:
                                                               widget.whatsApp,
@@ -1208,6 +1212,8 @@ class _ProductsScreenState extends State<ProductsScreen>
                                           padding: EdgeInsets.symmetric(
                                               vertical: 4, horizontal: 5),
                                           child: GridProductCard(
+                                            shareUrl: productModelList[
+                                            index].shareurl??"",
                                             id: productModelList[index].id,
                                             providerId: widget.categoryId,
                                             titleEn:

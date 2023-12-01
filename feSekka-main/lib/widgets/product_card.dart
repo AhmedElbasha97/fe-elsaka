@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:FeSekka/services/get_categories.dart';
+import 'package:FeSekka/services/stats_services.dart';
 import 'package:FeSekka/ui/logIn_screen.dart';
 import 'package:FeSekka/ui/signUp_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -32,7 +33,7 @@ class LinearProductCard extends StatefulWidget {
   int? totalAmountInCart;
   String? totalAmount;
   String? whatsappNumber;
-  String shareurl;
+  String shareUrl;
   LinearProductCard(
       {this.id,
       this.providerId,
@@ -51,7 +52,7 @@ class LinearProductCard extends StatefulWidget {
       this.detailsEn,
       this.whatsappNumber,
       this.detailsAr,
-        required this.shareurl,});
+        required this.shareUrl,});
 
   @override
   _LinearProductCardState createState() => _LinearProductCardState();
@@ -181,23 +182,32 @@ class _LinearProductCardState extends State<LinearProductCard> {
   }
 
   whatsapp(String contact) async {
+    String response = await StatService().whatsAppStatService(providerId: widget.providerId??"");
+    if (response == 'success') {
+
 
       try {
         if (Platform.isIOS) {
           var iosUrl = "https://wa.me/$contact?text=${Uri.parse(
-          "I saw a service ${widget.titleEn} In the application. Car Serv.\n في تطبيق. كار سيرف. ${widget.titleAr} رأيت خدمة ")}  \n ${widget.shareurl}";
+              "I saw a service ${widget
+                  .titleEn} In the application. Car Serv.\n في تطبيق. كار سيرف. ${widget
+                  .titleAr} رأيت خدمة ")}  \n ${widget.shareUrl}";
           await launchUrl(Uri.parse(iosUrl));
         }
         else {
-          var androidUrl = "whatsapp://send?phone=$contact&text= ${widget.shareurl}  \n I saw a service ${widget.titleEn} In the application. Car Surv.\n في تطبيق. كار سيرف. ${widget.titleAr} رأيت خدمة " ;
+          var androidUrl = "whatsapp://send?phone=$contact&text= ${widget
+              .shareUrl}  \n I saw a service ${widget
+              .titleEn} In the application. Car Surv.\n في تطبيق. كار سيرف. ${widget
+              .titleAr} رأيت خدمة ";
 
-          print(widget.shareurl);
+
           await launchUrl(Uri.parse(androidUrl));
         }
       } on Exception {
 
       }
     }
+  }
 
 
   photoSlider() {

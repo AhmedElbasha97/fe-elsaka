@@ -126,6 +126,24 @@ class _ProviderDrawerState extends State<ProviderDrawer> {
                 builder: (context) => ProductsScreen(),
               ));
             },
+          ),    Divider(
+            height: 1,
+            thickness: 2,
+            endIndent: 30,
+            indent: 30,
+          ),
+          ListTile(
+            title: Text("${AppLocalizations.of(context)!.translate('homeUser')}",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF66a5b4),
+                    fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.home, color: Color(0xFF66a5b4)),
+            onTap: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => SplashScreen(),
+              ));
+            },
           ),
           Divider(
             height: 1,
@@ -133,6 +151,7 @@ class _ProviderDrawerState extends State<ProviderDrawer> {
             endIndent: 30,
             indent: 30,
           ),
+
           ListTile(
             title: Text("${AppLocalizations.of(context)!.translate('slider')}",
                 style: TextStyle(
@@ -223,6 +242,7 @@ class _ProviderDrawerState extends State<ProviderDrawer> {
               ));
             },
           ),
+
           Padding(padding: EdgeInsets.symmetric(vertical: 10)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,

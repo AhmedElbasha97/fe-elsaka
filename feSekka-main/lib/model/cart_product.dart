@@ -10,7 +10,7 @@ class CartProductModel {
   String? categoryAr;
   String? categoryEn;
   List<String>? photos;
-
+  String? shareurl;
   CartProductModel(
       {this.id,
       this.titleAr,
@@ -22,6 +22,7 @@ class CartProductModel {
       this.categoryAr,
       this.categoryEn,
       this.quantity,
+        this.shareurl,
       this.photos});
 
   factory CartProductModel.fromJson(Map<String, dynamic> parsedJson) {
@@ -32,6 +33,7 @@ class CartProductModel {
       image: parsedJson['image'],
       price: parsedJson['price'],
       salePrice: parsedJson['sale'],
+      shareurl: parsedJson["shareurl"],
       categoryAr: parsedJson['categoryar'],
       categoryEn: parsedJson['categoryen'],
       quantity: parsedJson['quantity'],

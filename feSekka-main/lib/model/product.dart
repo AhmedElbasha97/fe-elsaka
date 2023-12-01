@@ -43,6 +43,7 @@ class ProductModel {
         detailsEn: parsedJson['details_en'],
         quantity: parsedJson['in_mycart'],
         provider: ProviderModel.fromJson(parsedJson['provider'],
+
         )
         //subCategory: subCategoryList
         );

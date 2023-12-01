@@ -23,6 +23,11 @@ class _TestUserScreenState extends State<TestUserScreen> {
 
   getUserType() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool checker = await ServiceProviderService().serviceCheckToken();
+    if(!checker){
+      prefs.clear();
+    }
+
     String? id = prefs.getString('provider_id');
     if (id == null || id == "") {
       String? countryStr = prefs.getString('savedCountry');
@@ -33,6 +38,7 @@ class _TestUserScreenState extends State<TestUserScreen> {
 
       }
     } else {
+
       bool locationEnbled = prefs.getBool('locationEnabled') ?? false;
       try {
         if (locationEnbled) {

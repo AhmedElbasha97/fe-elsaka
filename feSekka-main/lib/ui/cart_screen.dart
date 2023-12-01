@@ -146,7 +146,7 @@ class _CartScreenState extends State<CartScreen> {
                                   });
                                 },
                                 imgList:productModelList[index].photos,
-                                image: productModelList[index].image, shareurl: '',
+                                image: productModelList[index].image, shareUrl: '',
                               ),
                             );
                           },

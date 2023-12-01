@@ -3,6 +3,7 @@ import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/providerScreens/OrdersScreen.dart';
 import 'package:FeSekka/ui/providerScreens/signUpProviderscreen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class LoginProviderScreen extends StatefulWidget {
@@ -33,9 +34,13 @@ class _LoginProviderScreenState extends State<LoginProviderScreen> {
     if (!phoneError && !passwordError) {
       isServerLoading = true;
       setState(() {});
-      bool response = await ServiceProviderService()
-          .serviceProviderlogin(phoneController.text, passwordController.text);
-      if (response) {
+      FirebaseMessaging.instance.getToken().then((token) async {
+        bool? response = await ServiceProviderService()
+            .serviceProviderlogin(
+            phoneController.text, passwordController.text,token??"");
+
+
+      if (response??false) {
         pushPageReplacement(context, OrderScreen());
       } else {
         final snackBar = SnackBar(
@@ -45,6 +50,7 @@ class _LoginProviderScreenState extends State<LoginProviderScreen> {
       }
       isServerLoading = false;
       setState(() {});
+      });
     }
   }
 

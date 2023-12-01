@@ -199,6 +199,25 @@ class _AppDrawerState extends State<AppDrawer> {
                     getUserData();
                   },
                 ),
+
+          Divider(
+            height: 1,
+            thickness: 2,
+            endIndent: 30,
+            indent: 30,
+          ),
+          ListTile(
+            title: Text(
+                "${AppLocalizations.of(context)!.translate('serviceProviders')}",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF66a5b4),
+                    fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.people_alt, color: Color(0xFF66a5b4)),
+            onTap: () {
+              _showAlertDialog();
+            },
+          ),
           Divider(
             height: 1,
             thickness: 2,
@@ -238,24 +257,7 @@ class _AppDrawerState extends State<AppDrawer> {
               ));
             },
           ),
-          Divider(
-            height: 1,
-            thickness: 2,
-            endIndent: 30,
-            indent: 30,
-          ),
-          ListTile(
-            title: Text(
-                "${AppLocalizations.of(context)!.translate('serviceProviders')}",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFF66a5b4),
-                    fontWeight: FontWeight.bold)),
-            leading: Icon(Icons.people_alt, color: Color(0xFF66a5b4)),
-            onTap: () {
-              _showAlertDialog();
-            },
-          ),
+
           Divider(
             height: 1,
             thickness: 2,

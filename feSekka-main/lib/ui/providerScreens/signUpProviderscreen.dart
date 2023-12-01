@@ -14,6 +14,7 @@ import 'package:FeSekka/ui/providerScreens/OrdersScreen.dart';
 import 'package:FeSekka/widgets/loader.dart';
 import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -144,7 +145,8 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
 
     setState(() {});
     if (!nameError && !phoneError && !passwordError) {
-      Authresult response = await ServiceProviderService()
+      FirebaseMessaging.instance.getToken().then((token) async {
+      Authresult? response = await ServiceProviderService()
           .serviceProvidersignup(
               username: nameController.text,
               mobile: selectedCountry == null
@@ -158,7 +160,10 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
               long: position == null ? "${0.0}" : "${position!.longitude}",
               country:
                   selectedCountry == null ? null : selectedCountry!.countryId,
-              img: img == null ? null : File(img!.path));
+              img: img == null ? null : File(img!.path),
+      token: token??""
+      );
+
       if (response != null && response.status!) {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => OrderScreen(),
@@ -166,9 +171,10 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
       } else {
         loading = false;
         setState(() {});
-        final snackBar = SnackBar(content: Text('${response.message}'));
+        final snackBar = SnackBar(content: Text('${response?.message}'));
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
+        });
     } else {
       loading = false;
       setState(() {});

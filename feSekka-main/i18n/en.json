@@ -1,7 +1,7 @@
 {
   "skip": "skip",
   "signUp": "sign up",
-  "login": "log in",
+  "login": "log in User",
   "phoneNumber": "phone number",
   "password": "password",
   "home": "home screen",
@@ -88,5 +88,9 @@
   "linkYoutube": "video link",
   "mainCat": "Main Category",
   "agree": "agree",
-  "providerAlert": "if you want login as provider you'll signout from your current account"
+  "providerAlert": "if you want login as provider you'll signout from your current account",
+  "homeUser": "User Home Page",
+  "addNewProduct": "Do you want to add a new product?",
+  "noProductRecorded": "There are no products registered yet"
+
 }

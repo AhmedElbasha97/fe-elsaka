@@ -78,7 +78,7 @@ class _RequestPartScreenState extends State<RequestPartScreen> {
                   }else{
                    await getImageFromUserThroughGallery();
                    setState(() {
-                     
+
                    });
                   }}
               },

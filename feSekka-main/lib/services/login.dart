@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginService{
@@ -7,9 +8,14 @@ class LoginService{
 
   Future loginService({String? phone, String? password}) async{
     Response response;
+    FirebaseMessaging.instance.getToken().then((token) async {
+
+
+
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try{
-      response = await Dio().post("$url$loginEndPoint",data: {"mobile":"$phone","password":"$password"});
+      response = await Dio().post("$url$loginEndPoint",data: {"mobile":"$phone","password":"$password","token":"$token"});
       if(response.data['status'] == true) {
         print(response.data);
         prefs.setString("id", response.data['data'][0]['id']);
@@ -31,7 +37,7 @@ class LoginService{
       print('error in LoginService => ${e.response}');
       return e.response;
     }
-
+  });
   }
 
 }
