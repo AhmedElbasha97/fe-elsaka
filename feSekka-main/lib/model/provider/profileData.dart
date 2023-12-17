@@ -14,6 +14,7 @@ class ProfileData {
     this.lat,
     this.long,
     this.image,
+    this.mainCategoryId,
     this.orders,
   });
 
@@ -31,6 +32,7 @@ class ProfileData {
   String? lat;
   String? long;
   String? image;
+  List<String>? mainCategoryId;
   int? orders;
 
   factory ProfileData.fromJson(Map<String, dynamic> json) => ProfileData(
@@ -51,5 +53,7 @@ class ProfileData {
         long: json["long"] == null ? null : json["long"],
         image: json["image"],
         orders: json["orders"] == null ? null : json["orders"],
-      );
+    mainCategoryId: json["main_category_id"] == null ? [] : List<String>.from(json["main_category_id"]?.map((x) => x)),
+
+  );
 }

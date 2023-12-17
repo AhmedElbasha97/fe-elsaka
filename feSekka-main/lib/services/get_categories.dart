@@ -8,12 +8,14 @@ import 'package:FeSekka/model/main_model.dart';
 
 class GetCategories {
   final String url = "https://carserv.net/api/";
+
+
   final String category = "category";
   final String main = "main/";
   final String location = "/location";
   final String countClick = "service/provider/clicks";
 
-  Future<List<CategoryModel>> getCategory(String? id) async {
+  Future<List<CategoryModel>> getCategory(String? id,String garage) async {
     Response response;
     List<CategoryModel> categoryModelList = <CategoryModel>[];
     Datum? county;
@@ -24,7 +26,9 @@ class GetCategories {
     }
     print(link);
     try {
-      response = await Dio().get(link);
+      response = await Dio().get(link,
+          options: Options(headers: {"garage":garage}),
+      );
       List data = response.data;
       data.forEach((element) {
         print(element);

@@ -7,7 +7,9 @@ import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/countries.dart';
 import 'package:FeSekka/model/provider/authResult.dart';
+import 'package:FeSekka/model/provider/subcategoryProvider.dart';
 import 'package:FeSekka/services/appInfo.dart';
+import 'package:FeSekka/services/get_categories.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/map_screen.dart';
 import 'package:FeSekka/ui/providerScreens/OrdersScreen.dart';
@@ -18,9 +20,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import 'package:image_picker/image_picker.dart';
+import '../../model/main_model.dart';
 
 class SignUpProviderScreen extends StatefulWidget {
   @override
@@ -28,6 +29,13 @@ class SignUpProviderScreen extends StatefulWidget {
 }
 
 class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
+  List<String?> mainCats = [];
+  List<MainCategory> catList = [];
+  List<String> garageList = [
+    "in","out","both","parts"
+  ];
+  String chosenGarageValue = "";
+  String chosenGarageTitle = "";
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
@@ -38,7 +46,7 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
   Country? countriesData;
   Datum? selectedCountry;
   bool loading = true;
-
+  SubCategory? selectedCategory;
   final picker = ImagePicker();
   ImageSource imgSrc = ImageSource.gallery;
   File? img;
@@ -63,6 +71,7 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
     // this will return country name
   }
   getCountry() async {
+    catList = await GetCategories().getMainCategory();
     countriesData = await AppInfoService().getCountries();
     try {
       selectedCountry =
@@ -161,7 +170,9 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
               country:
                   selectedCountry == null ? null : selectedCountry!.countryId,
               img: img == null ? null : File(img!.path),
-      token: token??""
+      token: token??"",
+        mainCats: mainCats,
+        garage:chosenGarageValue
       );
 
       if (response != null && response.status!) {
@@ -189,6 +200,8 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> garageListTitle = [AppLocalizations.of(context)!.translate('garageTap1')!,AppLocalizations.of(context)!.translate('garageTap2')!,AppLocalizations.of(context)!.translate('garageTap3')!,AppLocalizations.of(context)!.translate('garageTap4')!];
+
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -590,7 +603,301 @@ class _SignUpProviderScreenState extends State<SignUpProviderScreen> {
                         : Container(),
                     Padding(padding: EdgeInsets.only(top: 10)),
                     Padding(padding: EdgeInsets.only(top: 10)),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: PopupMenuButton<String>(
+                        itemBuilder: (context) =>
+                        [
+                          PopupMenuItem(
+                            value:garageList[0],
+                            textStyle: TextStyle(
+                                color:  Colors.grey[700],
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                            onTap: (){
+                              chosenGarageTitle=garageListTitle[0];
+                              chosenGarageValue=garageList[0];
+                              setState(() {
+                              });
+                            },
+                            child: SizedBox(
+                              width:MediaQuery.of(context).size.width*0.9,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        garageListTitle[0],
+                                        style: TextStyle(
+                                            color:  Colors.grey[700],
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Divider(
+                                    color:  Colors.grey[700],
+                                    height: 1,
+                                    thickness: 2,
+                                    endIndent: 0,
+                                    indent: 0,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value:garageList[1],
+                            textStyle: TextStyle(
+                                color:  Colors.grey[700],
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                            onTap: (){
+                              chosenGarageTitle=garageListTitle[1];
+                              chosenGarageValue=garageList[1];
+                              setState(() {
+
+                              });
+                            },
+                            child: SizedBox(
+                              width:MediaQuery.of(context).size.width*0.9,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        garageListTitle[1],
+                                        style: TextStyle(
+                                            color:  Colors.grey[700],
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Divider(
+                                    color:  Colors.grey[700],
+                                    height: 1,
+                                    thickness: 2,
+                                    endIndent: 0,
+                                    indent: 0,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value:garageList[2],
+                            textStyle: TextStyle(
+                                color:  Colors.grey[700],
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                            onTap: (){
+
+                              chosenGarageTitle=garageListTitle[2];
+                              chosenGarageValue=garageList[2];
+                              setState(() {
+
+                              });
+                            },
+                            child: SizedBox(
+                              width:MediaQuery.of(context).size.width*0.9,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        garageListTitle[2],
+                                        style: TextStyle(
+                                            color:  Colors.grey[700],
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Divider(
+                                    color:  Colors.grey[700],
+                                    height: 1,
+                                    thickness: 2,
+                                    endIndent: 0,
+                                    indent: 0,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value:garageList[3],
+                            textStyle: TextStyle(
+                                color:  Colors.grey[700],
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                            onTap: (){
+
+                              chosenGarageTitle=garageListTitle[3];
+                              chosenGarageValue=garageList[3];
+                              setState(() {
+
+                              });
+                            },
+                            child: SizedBox(
+                              width:MediaQuery.of(context).size.width*0.9,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        garageListTitle[3],
+                                        style: TextStyle(
+                                            color:  Colors.grey[700],
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Divider(
+                                    color:  Colors.grey[700],
+                                    height: 1,
+                                    thickness: 2,
+                                    endIndent: 0,
+                                    indent: 0,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ]
+                        ,
+
+                        child: Center(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width*0.9,
+                            height: MediaQuery.of(context).size.height*0.07,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.black,width: 1)
+                            ),
+                            child:   Center(
+                                child:  Text(
+                                  chosenGarageTitle==""?"${AppLocalizations.of(context)!.translate('selectingGarageTitle')}":chosenGarageTitle  ,
+                                  style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15),
+                                )
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     Padding(padding: EdgeInsets.only(top: 10)),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                          onTap: () {
+                            showAdaptiveActionSheet(
+                              context: context,
+                              title: Center(
+                                child: Text(
+                                  "${AppLocalizations.of(context)!.translate('mainCat')}",
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                              actions:
+                              catList.map<BottomSheetAction>((MainCategory value) {
+                                return BottomSheetAction(
+                                    title: Padding(
+                                        padding:
+                                        const EdgeInsets.only(right: 10, left: 10),
+                                        child: CheckboxListTile(
+                                          title: Text(
+                                            '${Localizations.localeOf(context).languageCode == "en" ? value.titleen : value.titlear}',
+                                          ),
+                                          value: mainCats.contains(value.mainCategoryId),
+                                          onChanged: (newValue) {
+                                            if (mainCats.contains(value.mainCategoryId)) {
+                                              mainCats.remove(value.mainCategoryId);
+                                              setState(() {});
+                                              Navigator.of(context).pop();
+                                            } else {
+                                              mainCats.add(value.mainCategoryId);
+                                              setState(() {});
+                                              Navigator.of(context).pop();
+                                            }
+                                          },
+                                          controlAffinity: ListTileControlAffinity
+                                              .leading, //  <-- leading Checkbox
+                                        )),
+                                    onPressed: (_) {
+                                      if (mainCats.contains(value.mainCategoryId)) {
+                                        mainCats.remove(value.mainCategoryId);
+                                        setState(() {});
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        mainCats.add(value.mainCategoryId);
+                                        setState(() {});
+                                        Navigator.of(context).pop();
+                                      }
+                                    });
+                              }).toList(),
+                            );
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: 65,
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              border: Border.all(color:Color(0xFF0D986A)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  Container(
+                                    width: MediaQuery.of(context).size.width * 0.6,
+                                    child: Text(
+
+                                      selectedCategory == null
+                                          ? "${AppLocalizations.of(context)!.translate('mainCatSelection')}"
+                                          : Localizations.localeOf(context).languageCode ==
+                                          "en"
+                                          ? "${selectedCategory!.titleen}"
+                                          : "${selectedCategory!.titlear}",
+                                      style:
+                                      TextStyle(color: Colors.grey[600], fontSize: 15),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                    ),
+                                  ),
+
+                                ],
+                              ),
+                            ),
+                          )),
+                    ),
 
                     InkWell(
                       onTap: () async {

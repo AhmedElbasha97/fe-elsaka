@@ -38,7 +38,7 @@ class GetAllProducts {
     return productModelList;
   }
 
-  Future getProductsbyCategory(int page, String? token, String? id) async {
+  Future getProductsbyCategory(int page, String? token, String? id,String garage) async {
     Response response;
     List<ProductModel> productModelList = <ProductModel>[];
     Datum? county;
@@ -51,11 +51,13 @@ class GetAllProducts {
     try {
       print("hi url ${link}");
       if (token == null)
-        response = await Dio().get(link);
+        response = await Dio().get(link,
+          options: Options(headers: {"garage":garage}),
+        );
       else
         response = await Dio().get(
           link,
-          options: Options(headers: {"token": "$token"}),
+          options: Options(headers: {"token": "$token","garage":garage}),
         );
 
       print(link);

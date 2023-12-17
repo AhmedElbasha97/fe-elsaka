@@ -41,7 +41,7 @@ class ServiceProviderService {
       prefs.setString("provider_id", response.data['data']['provider_id']);
       prefs.setString("name", response.data['data']['name']);
       prefs.setString("mobile", response.data['data']['mobile']);
-      prefs.setString("token", token??"");
+      prefs.setString("token", token);
       result = true;
     }
     return result;
@@ -69,7 +69,7 @@ class ServiceProviderService {
       String? lat,
       String? long,
       String? country,
-      File? img,String? token}) async {
+      File? img,String? token,  List<String?>? mainCats,String? garage}) async {
     Authresult? result;
     FirebaseMessaging.instance.getToken().then((token) async {
     var data = FormData.fromMap({
@@ -80,7 +80,9 @@ class ServiceProviderService {
       "lat": lat,
       "long": long,
       "country_id": country,
-      "image": img == null ? null : await MultipartFile.fromFile('${img.path}'),"token":"$token"
+      "image": img == null ? null : await MultipartFile.fromFile('${img.path}'),"token":"$token",
+      "main_category_id":mainCats,
+      "garage":garage
     });
     Response response = await Dio().post("$url$signup", data: data);
     print(response.data);
@@ -104,7 +106,11 @@ class ServiceProviderService {
       String? whatsApp,
       String? lat,
       String? long,
-      String? country}) async {
+      String? country,
+        List<String?>? mainCats,
+        File? img,
+        String? garage,
+      }) async {
     Authresult result;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString("provider_id");
@@ -117,6 +123,9 @@ class ServiceProviderService {
       "lat": lat,
       "long": long,
       "country_id": country,
+      "image": img == null ? null : await MultipartFile.fromFile('${img.path}'),
+      "main_category_id": mainCats,
+      "garage":garage
     });
     Response response = await Dio().post("$url$edit", data: data);
     print(response.data);
@@ -166,9 +175,11 @@ class ServiceProviderService {
   }
 
   Future<ProfileData?> getProfileData() async {
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString("provider_id");
     ProfileData? profiledata;
+    print("$url$profile${"provider_id:"+ "$id"}");
     Response response =
         await Dio().post("$url$profile", data: {"provider_id": id});
     var data = response.data["data"];
@@ -241,7 +252,9 @@ class ServiceProviderService {
       File? img4,
       String? subCat,
       List<String?>? mainCats,
-      String videoLink) async {
+      String videoLink,
+      String type,
+      File? video,String garage,) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString("provider_id");
     var data = FormData.fromMap({
@@ -253,6 +266,8 @@ class ServiceProviderService {
           img3 == null ? null : await MultipartFile.fromFile('${img3.path}'),
       "image4":
           img4 == null ? null : await MultipartFile.fromFile('${img4.path}'),
+      "video":
+          video == null ? null : await MultipartFile.fromFile('${video.path}'),
       "titlear": title,
       "titleen": titleEn,
       "price": price,
@@ -260,7 +275,9 @@ class ServiceProviderService {
       "detailsen": detailsEn,
       "subcategory_id": subCat,
       "main_category_id": mainCats,
-      "youtube": videoLink
+      "youtube": videoLink,
+      "type":type,
+      "garage":garage
     });
     Response res = await Dio().post("$url$addNewProduct", data: data);
     print(res.data);
@@ -295,6 +312,10 @@ class ServiceProviderService {
       "titlear": title,
       "titleen": titleEn,
     });
+    print("$url$addsubCatogoryLInk");
+    print("titlear: $title,");
+    print("titleen: $titleEn,");
+
     await Dio().post("$url$addsubCatogoryLInk", data: data);
   }
 }

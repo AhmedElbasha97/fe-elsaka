@@ -209,6 +209,7 @@ class _MenOrWomenState extends State<MenOrWomen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: dotsList,
                       ),
+
                       AnimationLimiter(
                         child: ListView.builder(
                           primary: false,

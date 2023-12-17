@@ -91,6 +91,20 @@
   "providerAlert": "if you want login as provider you'll signout from your current account",
   "homeUser": "User Home Page",
   "addNewProduct": "Do you want to add a new product?",
-  "noProductRecorded": "There are no products registered yet"
-
+  "noProductRecorded": "There are no products registered yet",
+  "mainCatSelection": "Select the main department that will provide your services",
+  "mainCatSelectionForEdit":"edit the main department that will provide your services",
+  "chosenCategory":"The chosen section is",
+  "selectingGarageTitle":"what is type of service",
+  "garageTitle1": "The service is provided within the garage",
+  "garageTitle2": "The service is provided outside the garage",
+  "garageTitle3": "The service is provided inside the garage and outside the garage",
+  "garageTap1":"All Services",
+  "garageTap2":"Your location service",
+  "garageTap3":"Service inside the garage",
+  "garageTap4":"spare parts",
+  "productTypeTitle": "Choose the type of the item ",
+  "productType1": "Provided item is: Service",
+  "productType2": "Provided item is: product",
+  "openLocation": "Open location on Google Maps"
 }

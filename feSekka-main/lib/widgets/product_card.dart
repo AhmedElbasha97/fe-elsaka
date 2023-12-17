@@ -33,7 +33,9 @@ class LinearProductCard extends StatefulWidget {
   int? totalAmountInCart;
   String? totalAmount;
   String? whatsappNumber;
+  String? phoneNumber;
   String shareUrl;
+  String type;
   LinearProductCard(
       {this.id,
       this.providerId,
@@ -52,7 +54,7 @@ class LinearProductCard extends StatefulWidget {
       this.detailsEn,
       this.whatsappNumber,
       this.detailsAr,
-        required this.shareUrl,});
+        required this.shareUrl,this.phoneNumber,required this.type});
 
   @override
   _LinearProductCardState createState() => _LinearProductCardState();
@@ -71,6 +73,19 @@ class _LinearProductCardState extends State<LinearProductCard> {
   bool _isPlayerReady = false;
   List<Widget> dotsList = [];
   String? token;
+  _launchURL(String url,String nameOfSocialProgram) async {
+    print("hiiiiiiii");
+    print(url);
+    if(url == "" || url == "https://wa.me/" || url == "tel:"){
+
+    }
+    if (await launchUrl(Uri.parse(url))) {
+
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   makingDotsForCarouselSlider(int activeIndex){
     int productLength = widget.imgList!.length??0;
     dotsList = [];
@@ -297,6 +312,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
                     "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
                     style: TextStyle(
                         color: Colors.blue, fontWeight: FontWeight.bold),
+                    maxLines: 2,
                   ),
                   Padding(padding: EdgeInsets.only(top: 10)),
                   Container(
@@ -397,7 +413,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
       borderRadius: BorderRadius.all(Radius.circular(20)),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.9,
-        height: MediaQuery.of(context).size.height * 0.19,
+        height: MediaQuery.of(context).size.height * 0.2,
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -413,16 +429,77 @@ class _LinearProductCardState extends State<LinearProductCard> {
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(top: 3),
-                    child: Text(
-                      "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.red[900],
-                          fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
+                    child:Container(
+                      width: MediaQuery.of(context).size.width * 0.55,
+                      child: Text(
+                        "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.red[900],
+                            fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
                     ),
                   ),
-                  Row(
+                  widget.type=="service"?Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      InkWell(
+                      onTap: () {
+                        moreDialog();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        height: 30,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(5)),
+                            border: Border.all(color: Colors.black)),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.translate('more')}",
+                            style: TextStyle(fontSize: 16)),
+                      ),
+                    ),
+                      Padding(padding: EdgeInsets.symmetric(vertical: 5)),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              GetCategories().sendClickCount(
+                                  widget.providerId, "whatsapp");
+                              whatsapp(
+                                  widget.whatsappNumber??"");
+                            },
+                            child: Container(
+                              height: 30,
+                              child: Image.asset(
+                                "assets/icon/whatsapp.png",
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              GetCategories().sendClickCount(
+                                  widget.providerId, "mobile");
+                              String response = await StatService().mobileStatService(providerId: widget.providerId??"");
+                              if(response=='success'){
+                                _launchURL("tel:${widget.phoneNumber}","mobile");
+                              }
+                            },
+                            child: Container(
+                              height: 30,
+                              child: Image.asset(
+                                "assets/icon/c.png",
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ):Row(
                     children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -479,7 +556,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
                                           ),
                                         ),
                                       ),
-                                      Container(
+                                     Container(
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 5),
                                         color: Colors.grey,
@@ -514,7 +591,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
                                   ),
                           ),
                           Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                          Container(
+                          widget.type=="service"?SizedBox(): Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 5,
                               ),
@@ -579,20 +656,41 @@ class _LinearProductCardState extends State<LinearProductCard> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              GetCategories().sendClickCount(
-                                  widget.providerId, "whatsapp");
-                              whatsapp(
-                                 widget.whatsappNumber??"");
-                            },
-                            child: Container(
-                              height: 30,
-                              child: Image.asset(
-                                "assets/icon/whatsapp.png",
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  GetCategories().sendClickCount(
+                                      widget.providerId, "whatsapp");
+                                  whatsapp(
+                                     widget.whatsappNumber??"");
+                                },
+                                child: Container(
+                                  height: 30,
+                                  child: Image.asset(
+                                    "assets/icon/whatsapp.png",
+                                  ),
+                                ),
                               ),
-                            ),
+                              InkWell(
+                                onTap: () async {
+                                      GetCategories().sendClickCount(
+                                      widget.providerId, "mobile");
+                                      String response = await StatService().mobileStatService(providerId: widget.providerId??"");
+                                      if(response=='success'){
+                                      _launchURL("tel:${widget.phoneNumber}","mobile");
+                                      }
+                                },
+                                child: Container(
+                                  height: 30,
+                                  child: Image.asset(
+                                    "assets/icon/c.png",
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
+
                           Padding(padding: EdgeInsets.symmetric(vertical: 5)),
                           InkWell(
                             onTap: () {

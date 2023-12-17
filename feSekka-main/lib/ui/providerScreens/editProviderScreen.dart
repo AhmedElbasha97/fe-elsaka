@@ -1,9 +1,13 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:io';
+
 import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/countries.dart';
+import 'package:FeSekka/model/main_model.dart';
 import 'package:FeSekka/model/provider/authResult.dart';
 import 'package:FeSekka/model/provider/profileData.dart';
+import 'package:FeSekka/model/provider/subcategoryProvider.dart';
 import 'package:FeSekka/services/appInfo.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/ui/map_screen.dart';
@@ -15,6 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../services/get_categories.dart';
 
 class EditProfileScreen extends StatefulWidget {
   ProfileData? data;
@@ -26,6 +33,15 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   String? userAddress;
   LatLng? selectedPlace;
+  List<String> garageList = [
+    "in","out","both","parts"
+  ];
+  String chosenGarageValue = "";
+  String chosenGarageTitle = "";
+
+  List<String?> mainCats = [];
+  List<MainCategory> catList = [];
+  SubCategory? selectedCategory;
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -34,8 +50,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Country? countriesData;
   Datum? selectedCountry;
   bool loading = true;
-
+  XFile? image;
+  final picker = ImagePicker();
+  ImageSource imgSrc = ImageSource.gallery;
+  final ImagePicker _picker = ImagePicker();
+  List<File> _images = [];
   getCountry() async {
+    catList = await GetCategories().getMainCategory();
     countriesData = await AppInfoService().getCountries();
     try {
       selectedCountry =
@@ -56,20 +77,102 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     print(address.first);
     print(country);
     setState(() {
-      for(var item in countriesData!.data!){
-        if(item.titleen?.toLowerCase()==country?.toLowerCase()) {
-          selectedCountry=item;
+      for (var item in countriesData!.data!) {
+        if (item.titleen?.toLowerCase() == country?.toLowerCase()) {
+          selectedCountry = item;
           print(selectedCountry);
         }
-
       }
     });
     // this will return country name
   }
+    Future<void> getImageFromUserThroughCamera() async {
+      image = await _picker.pickImage(source: ImageSource.camera);
+      setState(() {});
+    }
+
+    //get image from user through gallery
+    Future<void> getImageFromUserThroughGallery() async {
+      image = await _picker.pickImage(source: ImageSource.gallery);
+      setState(() {});
+    }
+  Future<bool?> selectImageSrc() async {
+    bool? done = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+          title: Center(
+              child:
+              Text(AppLocalizations.of(context)!.translate('select')!)),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                MaterialButton(
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.camera_alt),
+                      Text(
+                          AppLocalizations.of(context)!.translate('camera')!),
+                    ],
+                  ),
+                  onPressed: () {
+                    imgSrc = ImageSource.camera;
+                    Navigator.pop(context, true);
+                  },
+                ),
+                MaterialButton(
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.photo),
+                      Text(
+                          AppLocalizations.of(context)!.translate('galary')!),
+                    ],
+                  ),
+                  onPressed: () {
+                    imgSrc = ImageSource.gallery;
+                    Navigator.pop(context, true);
+                  },
+                )
+              ],
+            ),
+          ],
+        ));
+    return done;
+  }
+  getPhoto(int index, ImageSource src) async {
+    if(imgSrc == ImageSource.camera) {
+      await getImageFromUserThroughCamera();
+      setState(() {});
+    }else{
+      await getImageFromUserThroughGallery();
+      setState(() {});
+    }
+    if (image != null) {
+      if (_images.isNotEmpty) {
+        if (_images.asMap()[index] == null) {
+          print('in add');
+          _images.add(File(image!.path));
+          setState(() {});
+        } else {
+          print('in insert');
+          _images[index] = File(image!.path);
+          setState(() {});
+        }
+      } else
+
+        _images.add(File(image!.path));
+      print(index);
+
+    }
+  }
+
   getUserData() async {
     await getCountry();
     loading = false;
     setState(() {});
+    mainCats = widget.data?.mainCategoryId??[];
     nameController.text = widget.data!.name!;
     phoneController.text = widget.data!.mobile!;
     whatsAppController.text = widget.data!.whatsapp!;
@@ -98,13 +201,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               passwordController.text == "" ? null : passwordController.text,
           username: nameController.text,
           whatsApp: whatsAppController.text,
+          mainCats: mainCats,
+
           lat: selectedPlace == null
               ? widget.data!.lat
               : "${selectedPlace?.latitude}",
           long: selectedPlace == null
               ? widget.data!.long
               : "${selectedPlace?.longitude}",
-          country: selectedCountry == null ? null : selectedCountry!.countryId);
+          country: selectedCountry == null ? null : selectedCountry!.countryId,garage: chosenGarageValue);
       loading = false;
       setState(() {});
       if (result != null && result.status!) {
@@ -130,6 +235,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> garageListTitle = [AppLocalizations.of(context)!.translate('garageTap1')!,AppLocalizations.of(context)!.translate('garageTap2')!,AppLocalizations.of(context)!.translate('garageTap3')!,AppLocalizations.of(context)!.translate('garageTap4')!];
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -158,12 +264,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
+
                     Padding(
                       padding: EdgeInsets.only(
                           top: MediaQuery.of(context).padding.top),
                       child: Image.asset(
                         "assets/icon/logo.png",
                         scale: 7,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        bool? done = await selectImageSrc();
+                        if (done??false) {
+                          await getPhoto(0, imgSrc);
+                          setState(() {
+                          });
+                        }
+                        setState(() {
+                        });
+                      },
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            width: 100,
+                            height: 100,
+                            margin: EdgeInsets.symmetric(horizontal: 5),
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(20)),
+                                border: Border.all(color: Color(0xFFB9B9B9)),
+                                color: Color(0xFFF3F3F3)),
+                            alignment: Alignment.center,
+                            child: widget.data?.image != null?CachedNetworkImage(
+                              imageUrl: widget.data?.image??"",
+                              placeholder: (context, url) => SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Icon(Icons.error),
+                              fit: BoxFit.fill,
+                            ):_images.asMap()[0] == null
+                                ? Icon(
+                              Icons.camera_alt,
+                              size: 30,
+                            )
+                                : Image.file(_images[0]),
+                          )
+                        ],
                       ),
                     ),
                     Column(
@@ -398,6 +550,301 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   ),
                                 ),
                               )),
+                        ),
+                        Padding(padding: EdgeInsets.only(top: 25)),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: InkWell(
+                              onTap: () {
+                                showAdaptiveActionSheet(
+                                  context: context,
+                                  title: Center(
+                                    child: Text(
+                                      "${AppLocalizations.of(context)!.translate('mainCat')}",
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                  ),
+                                  actions:
+                                  catList.map<BottomSheetAction>((MainCategory value) {
+                                    return BottomSheetAction(
+                                        title: Padding(
+                                            padding:
+                                            const EdgeInsets.only(right: 10, left: 10),
+                                            child: CheckboxListTile(
+                                              title: Text(
+                                                '${Localizations.localeOf(context).languageCode == "en" ? value.titleen : value.titlear}',
+                                              ),
+                                              value: mainCats.contains(value.mainCategoryId),
+                                              onChanged: (newValue) {
+                                                if (mainCats.contains(value.mainCategoryId)) {
+                                                  mainCats.remove(value.mainCategoryId);
+                                                  setState(() {});
+                                                  Navigator.of(context).pop();
+                                                } else {
+                                                  mainCats.add(value.mainCategoryId);
+                                                  setState(() {});
+                                                  Navigator.of(context).pop();
+                                                }
+                                              },
+                                              controlAffinity: ListTileControlAffinity
+                                                  .leading, //  <-- leading Checkbox
+                                            )),
+                                        onPressed: (_) {
+                                          if (mainCats.contains(value.mainCategoryId)) {
+                                            mainCats.remove(value.mainCategoryId);
+                                            setState(() {});
+                                            Navigator.of(context).pop();
+                                          } else {
+                                            mainCats.add(value.mainCategoryId);
+                                            setState(() {});
+                                            Navigator.of(context).pop();
+                                          }
+                                        });
+                                  }).toList(),
+                                );
+                              },
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                height: 65,
+                                padding: EdgeInsets.symmetric(horizontal: 15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                  border: Border.all(color:Color(0xFF0D986A)),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context).size.width * 0.6,
+                                        child: Text(
+
+                                          selectedCategory == null
+                                              ? "${AppLocalizations.of(context)!.translate('mainCatSelectionForEdit')}"
+                                              : Localizations.localeOf(context).languageCode ==
+                                              "en"
+                                              ? "${selectedCategory!.titleen}"
+                                              : "${selectedCategory!.titlear}",
+                                          style:
+                                          TextStyle(color: Colors.grey[600], fontSize: 15),
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                        ),
+                                      ),
+
+                                    ],
+                                  ),
+                                ),
+                              )),
+                        ),
+                        Padding(padding: EdgeInsets.only(top: 25)),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: PopupMenuButton<String>(
+                            itemBuilder: (context) =>
+                            [
+                              PopupMenuItem(
+                                value:garageList[0],
+                                textStyle: TextStyle(
+                                    color:  Colors.grey[700],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                                onTap: (){
+                                  chosenGarageTitle=garageListTitle[0];
+                                  chosenGarageValue=garageList[0];
+                                  setState(() {
+                                  });
+                                },
+                                child: SizedBox(
+                                  width:MediaQuery.of(context).size.width*0.9,
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            garageListTitle[0],
+                                            style: TextStyle(
+                                                color:  Colors.grey[700],
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Divider(
+                                        color:  Colors.grey[700],
+                                        height: 1,
+                                        thickness: 2,
+                                        endIndent: 0,
+                                        indent: 0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value:garageList[1],
+                                textStyle: TextStyle(
+                                    color:  Colors.grey[700],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                                onTap: (){
+                                  chosenGarageTitle=garageListTitle[1];
+                                  chosenGarageValue=garageList[1];
+                                  setState(() {
+
+                                  });
+                                },
+                                child: SizedBox(
+                                  width:MediaQuery.of(context).size.width*0.9,
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            garageListTitle[1],
+                                            style: TextStyle(
+                                                color:  Colors.grey[700],
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Divider(
+                                        color:  Colors.grey[700],
+                                        height: 1,
+                                        thickness: 2,
+                                        endIndent: 0,
+                                        indent: 0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value:garageList[2],
+                                textStyle: TextStyle(
+                                    color:  Colors.grey[700],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                                onTap: (){
+
+                                  chosenGarageTitle=garageListTitle[2];
+                                  chosenGarageValue=garageList[2];
+                                  setState(() {
+
+                                  });
+                                },
+                                child: SizedBox(
+                                  width:MediaQuery.of(context).size.width*0.9,
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            garageListTitle[2],
+                                            style: TextStyle(
+                                                color:  Colors.grey[700],
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Divider(
+                                        color:  Colors.grey[700],
+                                        height: 1,
+                                        thickness: 2,
+                                        endIndent: 0,
+                                        indent: 0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value:garageList[3],
+                                textStyle: TextStyle(
+                                    color:  Colors.grey[700],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                                onTap: (){
+
+                                  chosenGarageTitle=garageListTitle[3];
+                                  chosenGarageValue=garageList[3];
+                                  setState(() {
+
+                                  });
+                                },
+                                child: SizedBox(
+                                  width:MediaQuery.of(context).size.width*0.9,
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            garageListTitle[3],
+                                            style: TextStyle(
+                                                color:  Colors.grey[700],
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Divider(
+                                        color:  Colors.grey[700],
+                                        height: 1,
+                                        thickness: 2,
+                                        endIndent: 0,
+                                        indent: 0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ]
+                            ,
+
+                            child: Center(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width*0.9,
+                                height: MediaQuery.of(context).size.height*0.07,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.black,width: 1)
+                                ),
+                                child:   Center(
+                                    child:  Text(
+                                      chosenGarageTitle==""?"${AppLocalizations.of(context)!.translate('selectingGarageTitle')}":chosenGarageTitle  ,
+                                      style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15),
+                                    )
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                         Padding(padding: EdgeInsets.only(top: 25)),
                         InkWell(

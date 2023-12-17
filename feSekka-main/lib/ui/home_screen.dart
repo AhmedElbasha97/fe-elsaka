@@ -1,7 +1,6 @@
 // ignore_for_file: must_be_immutable, deprecated_member_use
 
 import 'dart:async';
-
 import 'package:FeSekka/ui/cart_screen.dart';
 import 'package:FeSekka/ui/logIn_screen.dart';
 import 'package:FeSekka/ui/signUp_screen.dart';
@@ -22,7 +21,7 @@ import 'package:FeSekka/widgets/home_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../model/main_model.dart';
 import '../widgets/loader.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -34,17 +33,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
+  List<MainCategory> list = [];
+  String selectedCategory = "";
   List<Widget> dotsList = [];
   bool isLoadingMoreData = false;
   bool isSearchClicked = false;
   bool isLoadingProducts = false;
   final CarouselController _controller = CarouselController();
   int _current = 0;
-
   int apiPage = 1;
   int totalProductsInCart = 0;
   bool isCategoryOn = false;
-
   late List imgList;
   List? child;
   List? photoSliderList;
@@ -52,15 +51,32 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ProductModel> productModelList = <ProductModel>[];
   List<String> cart = <String>[];
   late LatLng position;
-
   String? name;
   String? token;
 
+  List<String> garageList = [
+    "in","out","both","parts"
+  ];
+  String chosenGarageValue = "both";
+  String chosenGarageTitle = "";
   ScrollController? _loadMoreDataController;
   bool isLocationActive = false;
   FocusNode searchFocusNode = FocusNode();
   TextEditingController searchController = TextEditingController();
+  getMainCategories() async {
 
+    list = await GetCategories().getMainCategory();
+    for(var data in list){
+      if(data.mainCategoryId == widget.id){
+        selectedCategory = (Localizations.localeOf(
+            context)
+            .languageCode ==
+            "en"
+            ?data.titleen:data.titlear)!;
+        list.remove(data);
+      }
+    }
+  }
   Future<void> _showMyDialog() async {
     return showDialog<void>(
       context: context,
@@ -146,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getCategories() async {
-    categoryModelList = await GetCategories().getCategory(widget.id);
+    categoryModelList = await GetCategories().getCategory(widget.id,chosenGarageValue);
     print(categoryModelList.length);
     isLoading = false;
     setState(() {});
@@ -164,9 +180,10 @@ class _HomeScreenState extends State<HomeScreen> {
   getAllProducts() async {
     isLoadingProducts = true;
     setState(() {});
+    getMainCategories();
     productModelList.clear();
     productModelList =
-        await (GetAllProducts().getProductsbyCategory(apiPage, token, widget.id) );
+        await (GetAllProducts().getProductsbyCategory(apiPage, token, widget.id,chosenGarageValue) );
     print('******************************************');
     print(token);
     print('---');
@@ -192,8 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
       print(apiPage);
       List<ProductModel>? productModelList = <ProductModel>[];
       productModelList = await (GetAllProducts()
-          .getProductsbyCategory(apiPage, token, widget.id) as FutureOr<List<ProductModel>>);
-      if (productModelList.isNotEmpty) {
+          .getProductsbyCategory(apiPage, token, widget.id,chosenGarageValue));
+      if (productModelList!.isNotEmpty) {
         this.productModelList.addAll(productModelList);
       } else
         apiPage--;
@@ -298,6 +315,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> garageListTitle = [AppLocalizations.of(context)!.translate('garageTap1')!,AppLocalizations.of(context)!.translate('garageTap2')!,AppLocalizations.of(context)!.translate('garageTap3')!,AppLocalizations.of(context)!.translate('garageTap4')!];
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -340,24 +359,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
           isCategoryOn
-              ? IconButton(
-                  icon: Icon(
-                    Icons.pin_drop,
-                    color: isLocationActive ? Colors.blue : Colors.white,
-                  ),
-                  onPressed: () {
-                    isLocationActive = !isLocationActive;
-                    if (isLocationActive) {
-                      isLoading = true;
-                      setState(() {});
-                      getLocation();
-                    } else {
-                      getCategories();
-                    }
-                    setState(() {});
-                  },
-                )
-              : Container(),
+              ? InkWell(
+            onTap:  () {
+              isLocationActive = !isLocationActive;
+              if (isLocationActive) {
+                isLoading = true;
+                setState(() {});
+                getLocation();
+              } else {
+                getCategories();
+              }
+              setState(() {});
+            },
+            child: Image.asset(
+              "assets/icon/Animation - 1702411739851 (1).gif",
+              height: 40.0,
+              width: 40.0,
+            ),
+          ) : Container(),
           isCategoryOn
               ? IconButton(
                   icon: Icon(
@@ -444,6 +463,316 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: dotsList,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: PopupMenuButton<MainCategory>(
+                      itemBuilder: (context) =>
+                          list.map((e){
+                            return   PopupMenuItem(
+                              value:e,
+                              textStyle: TextStyle(
+                            color:  Colors.grey[700],
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                              onTap: (){
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                  builder: (context) => HomeScreen(
+                                      id: e.mainCategoryId),
+                                ));
+
+                              },
+                              child: SizedBox(
+                                width:MediaQuery.of(context).size.width*0.9,
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          (Localizations.localeOf(
+                                              context)
+                                              .languageCode ==
+                                              "en"
+                                              ?e.titleen:e.titlear)??"",
+                                          style: TextStyle(
+                                              color:  Colors.grey[700],
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                     Divider(
+                                      color:  Colors.grey[700],
+                                      height: 1,
+                                      thickness: 2,
+                                      endIndent: 0,
+                                      indent: 0,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+
+                      child: Center(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width*0.9,
+                          height: MediaQuery.of(context).size.height*0.07,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.black,width: 1)
+                          ),
+                          child:   Center(
+                            child:  Text(
+                              "${AppLocalizations.of(context)!.translate('chosenCategory')} : $selectedCategory" ,
+                              style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15),
+                            )
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: PopupMenuButton<String>(
+                      itemBuilder: (context) =>
+                      [
+                        PopupMenuItem(
+                          value:garageList[0],
+                          textStyle: TextStyle(
+                              color:  Colors.grey[700],
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                          onTap: (){
+                            chosenGarageTitle=garageListTitle[0];
+                            chosenGarageValue=garageList[0];
+                            if(isCategoryOn){
+                              getCategories();
+                            }else{
+                              getAllProducts();
+                            }
+                            setState(() {
+                            });
+                          },
+                          child: SizedBox(
+                            width:MediaQuery.of(context).size.width*0.9,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      garageListTitle[0],
+                                      style: TextStyle(
+                                          color:  Colors.grey[700],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Divider(
+                                  color:  Colors.grey[700],
+                                  height: 1,
+                                  thickness: 2,
+                                  endIndent: 0,
+                                  indent: 0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value:garageList[1],
+                          textStyle: TextStyle(
+                              color:  Colors.grey[700],
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                          onTap: (){
+                            chosenGarageTitle=garageListTitle[1];
+                            chosenGarageValue=garageList[1];
+                            if(isCategoryOn){
+                              getCategories();
+                            }else{
+                              getAllProducts();
+                            }
+                            setState(() {
+
+                            });
+                          },
+                          child: SizedBox(
+                            width:MediaQuery.of(context).size.width*0.9,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      garageListTitle[1],
+                                      style: TextStyle(
+                                          color:  Colors.grey[700],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Divider(
+                                  color:  Colors.grey[700],
+                                  height: 1,
+                                  thickness: 2,
+                                  endIndent: 0,
+                                  indent: 0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value:garageList[2],
+                          textStyle: TextStyle(
+                              color:  Colors.grey[700],
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                          onTap: (){
+
+                            chosenGarageTitle=garageListTitle[2];
+                            chosenGarageValue=garageList[2];
+                            if(isCategoryOn){
+                              getCategories();
+                            }else{
+                              getAllProducts();
+                            }
+                            setState(() {
+
+                            });
+                          },
+                          child: SizedBox(
+                            width:MediaQuery.of(context).size.width*0.9,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      garageListTitle[2],
+                                      style: TextStyle(
+                                          color:  Colors.grey[700],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Divider(
+                                  color:  Colors.grey[700],
+                                  height: 1,
+                                  thickness: 2,
+                                  endIndent: 0,
+                                  indent: 0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value:garageList[3],
+                          textStyle: TextStyle(
+                              color:  Colors.grey[700],
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                          onTap: (){
+
+                            chosenGarageTitle=garageListTitle[3];
+                            chosenGarageValue=garageList[3];
+                            if(isCategoryOn){
+                              getCategories();
+                            }else{
+                              getAllProducts();
+                            }
+                            setState(() {
+
+                            });
+                          },
+                          child: SizedBox(
+                            width:MediaQuery.of(context).size.width*0.9,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      garageListTitle[3],
+                                      style: TextStyle(
+                                          color:  Colors.grey[700],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Divider(
+                                  color:  Colors.grey[700],
+                                  height: 1,
+                                  thickness: 2,
+                                  endIndent: 0,
+                                  indent: 0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ]
+                      ,
+
+                      child: Center(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width*0.9,
+                          height: MediaQuery.of(context).size.height*0.07,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.black,width: 1)
+                          ),
+                          child:   Center(
+                              child:  Text(
+                                chosenGarageTitle==""?"${AppLocalizations.of(context)!.translate('selectingGarageTitle')}":chosenGarageTitle  ,
+                                style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15),
+                              )
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
@@ -576,6 +905,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             Radius.circular(
                                                                 10.0)),
                                                     child: HomeCard(
+
                                                       subCategory:
                                                           categoryModelList[
                                                                   index]
@@ -622,8 +952,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                 ),
                                               ),
-                                              Text(
-                                                  "${Localizations.localeOf(context).languageCode == 'en' ? categoryModelList[index].titleEn : categoryModelList[index].titleAr}")
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 0),
+                                                child: Text(
+                                                    "${Localizations.localeOf(context).languageCode == 'en' ? categoryModelList[index].titleEn : categoryModelList[index].titleAr}",style: TextStyle(
+                                                    color: Colors.grey[700],
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 15),),
+                                              )
                                             ],
                                           ),
                                         )));
@@ -634,7 +972,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       childAspectRatio: MediaQuery.of(context)
                                               .size
                                               .width /
-                                          (MediaQuery.of(context).size.height /
+                                          (MediaQuery.of(context).size.height*0.9 /
                                               1.7)),
                             )
                       : isLoadingProducts
@@ -661,6 +999,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             padding: EdgeInsets.symmetric(
                                                 vertical: 5, horizontal: 5),
                                             child: LinearProductCard(
+                                              phoneNumber: productModelList[index]
+                                                  .provider!
+                                                  .mobile,
                                               shareUrl:productModelList[index].shareurl??"" ,
                                               id: productModelList[index].id,
                                               providerId:
@@ -706,7 +1047,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 }
                                               },
                                               imgList: productModelList[index]
-                                                  .images,
+                                                  .images, type: productModelList[index].type??"",
                                             ),
                                           ),
                                         )));

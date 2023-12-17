@@ -1,6 +1,8 @@
 // ignore_for_file: must_be_immutable, deprecated_member_use
 
 import 'dart:async';
+import 'dart:io';
+import 'package:map_launcher/map_launcher.dart' as mapLancher;
 
 import 'package:FeSekka/globals/utils.dart';
 import 'package:FeSekka/model/category.dart';
@@ -118,7 +120,19 @@ class _ProductsScreenState extends State<ProductsScreen>
     }
     setState(() {});
   }
+  showLocationInGoogleMap() async {
+    await mapLancher.MapLauncher.showMarker(
+      mapType: Platform.isAndroid
+          ? mapLancher.MapType.google: mapLancher.MapType.apple,
+      coords:  mapLancher.Coords(double.parse(widget.lat??""),
+          double.parse(widget.long??"")),
+      title: "${widget?.categoryName}",
+      description: "you can now navigate to this street",
+    );
+  }
   openMap() async {
+    print(widget.lat);
+    print(widget.long);
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -138,8 +152,8 @@ class _ProductsScreenState extends State<ProductsScreen>
                         target: widget.lat == "null" || widget.lat == ""
                             ? const LatLng(0, 0)
                             : LatLng(
-                            double.parse(widget.lat!.split(",")[0]),
-                            double.parse(widget.long!.split(",")[1])),
+                            double.parse(widget.lat??""),
+                            double.parse(widget.long??"")),
                         zoom: 19.151926040649414,
                       ),
                       onMapCreated: (GoogleMapController controller) {
@@ -154,8 +168,8 @@ class _ProductsScreenState extends State<ProductsScreen>
                               widget.lat == ""
                               ? const LatLng(0, 0)
                               : LatLng(
-                              double.parse(widget.lat!.split(",")[0]),
-                              double.parse(widget.long!.split(",")[1])),
+                              double.parse(widget.lat??""),
+                              double.parse(widget.long??"")),
                           infoWindow: InfoWindow(
                             // title is the address
                             title: "${widget.categoryName}",
@@ -220,13 +234,13 @@ class _ProductsScreenState extends State<ProductsScreen>
             borderRadius: BorderRadius.all(Radius.circular(5.0)),
             child: CachedNetworkImage(
               imageUrl: i,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               width: 1000.0,
               placeholder: (context, url) => SizedBox(
                 width: MediaQuery.of(context).size.width * 0.2,
                 height: MediaQuery.of(context).size.height * 0.1,
                 child: FittedBox(
-                  fit: BoxFit.scaleDown,
+                  fit: BoxFit.contain,
                   child: CircularProgressIndicator(),
                 ),
               ),
@@ -888,6 +902,11 @@ class _ProductsScreenState extends State<ProductsScreen>
                               ),
                             )
                           : Container(),
+            child != null && child!.isNotEmpty
+                ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:dotsList,
+            ):SizedBox(),
                       DefaultTabController(
                         length: tabsList.length,
                         child: PreferredSize(
@@ -902,12 +921,23 @@ class _ProductsScreenState extends State<ProductsScreen>
                           ),
                         ),
                       ),
-                      child != null && child!.isNotEmpty
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children:dotsList,
-                            )
-                          : Container(),
+
+
+                      Padding(padding: EdgeInsets.only(top: 20)),
+                      InkWell(
+                        onTap: (){
+                          showLocationInGoogleMap();
+
+                        },
+                        child:Text(
+                          "${AppLocalizations.of(context)!.translate('openLocation')}",
+                          style: TextStyle(
+                              color: Colors.grey[700],
+
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
                       Padding(padding: EdgeInsets.only(top: 20)),
                       Container(
                         width: MediaQuery.of(context).size.width,
@@ -1108,6 +1138,9 @@ class _ProductsScreenState extends State<ProductsScreen>
                                                                 horizontal: 5),
                                                         child:
                                                             LinearProductCard(
+                                                              phoneNumber: productModelList[index]
+                                                                  .provider!
+                                                                  .mobile,
                                                               shareUrl: productModelList[
                                                               index].shareurl??"",
                                                           whatsappNumber:
@@ -1183,7 +1216,7 @@ class _ProductsScreenState extends State<ProductsScreen>
                                                           imgList:
                                                               productModelList[
                                                                       index]
-                                                                  .images,
+                                                                  .images, type: productModelList[index].type??"",
                                                         ),
                                                       ),
                                                     )));
@@ -1253,7 +1286,9 @@ class _ProductsScreenState extends State<ProductsScreen>
                                             imgList: productModelList[
                                                                       index]
                                                                   .images,
-                                            whatsappNumber: widget.whatsApp,
+                                            whatsappNumber: widget.whatsApp, type:  "${productModelList[index].type??""}",phoneNumber: productModelList[index]
+                                              .provider!
+                                              .mobile,
                                           ),
                                         );
                                       },

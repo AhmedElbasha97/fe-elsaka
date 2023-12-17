@@ -34,8 +34,8 @@ class GridProductCard extends StatefulWidget {
   String? whatsappNumber;
   int? totalAmount;
   String shareUrl;
-
-
+  String type;
+  String? phoneNumber;
   GridProductCard(
       {this.id,
       this.providerId,
@@ -53,9 +53,9 @@ class GridProductCard extends StatefulWidget {
       this.checkBoxMark = false,
       this.detailsEn,
       this.detailsAr,
-
+        this.phoneNumber,
       this.whatsappNumber,
-        required this.shareUrl,});
+        required this.shareUrl,required this.type});
 
   @override
   _GridProductCardState createState() => _GridProductCardState();
@@ -63,10 +63,10 @@ class GridProductCard extends StatefulWidget {
 
 class _GridProductCardState extends State<GridProductCard> {
   int? totalAmount = 0;
-  List? child;
+  List<Widget>? child;
   int _current = 0;
   bool? checkBoxValue;
-
+  List<Widget> dotsList = [];
   YoutubePlayerController? _controller;
 
   bool isLoadingVideo = false;
@@ -183,23 +183,60 @@ class _GridProductCardState extends State<GridProductCard> {
     }
   }
   }
+  _launchURL(String url,String nameOfSocialProgram) async {
+    print("hiiiiiiii");
+    print(url);
+    if(url == "" || url == "https://wa.me/" || url == "tel:"){
 
+    }
+    if (await launchUrl(Uri.parse(url))) {
+
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
   photoSlider() {
-    child = map<Widget>(
-      widget.imgList!,
-      (index, i) {
+    child = widget.imgList!.map(
+
+          (e) {
         return Container(
           margin: EdgeInsets.all(5.0),
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            child: Image.network(i, fit: BoxFit.cover, width: 1000.0),
+            child: Image.network(e, fit: BoxFit.cover, width: 1000.0),
           ),
         );
       },
     ).toList();
   }
+  makingDotsForCarouselSlider(int activeIndex){
+    int productLength = widget.imgList!.length??0;
+    dotsList = [];
+    for(int i=0;i<productLength;i++){
+      dotsList.add(
+          Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: Container(
+                width:10,
+                height:10,
+                decoration:BoxDecoration(
+                    shape:BoxShape.circle,
+                    color:activeIndex == i
+                        ? Color(0xFF0D986A)
+                        : Color(0xFFD8D8D8)),
+              )
 
+
+          )
+      );
+
+    }
+    setState(() {
+
+    });
+  }
   moreDialog() {
+    makingDotsForCarouselSlider(0);
     showDialog(
       context: context,
       builder: (BuildContext context) => Dialog(
@@ -224,7 +261,7 @@ class _GridProductCardState extends State<GridProductCard> {
                 ),
                 child!.isNotEmpty
                     ? CarouselSlider(
-                        items: child as List<Widget>?,
+                        items: child,
                         options: CarouselOptions(
                           autoPlay: true,
                           enlargeCenterPage: true,
@@ -232,6 +269,7 @@ class _GridProductCardState extends State<GridProductCard> {
                           onPageChanged: (index, reason) {
                             setState(() {
                               _current = index;
+                              makingDotsForCarouselSlider(index);
                               print('in the slider $_current');
                             });
                           },
@@ -240,23 +278,9 @@ class _GridProductCardState extends State<GridProductCard> {
                     : Container(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: map<Widget>(
-                    widget.imgList!,
-                    (index, url) {
-                      return Container(
-                        width: 8.0,
-                        height: 8.0,
-                        margin: EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 5.0),
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _current == index
-                                ? Color(0xFF0D986A)
-                                : Color(0xFFD8D8D8)),
-                      );
-                    },
-                  ) as List<Widget>,
+                  children: dotsList,
                 ),
+
                 Padding(padding: EdgeInsets.only(top: 10)),
                 widget.video!.isNotEmpty
                     ? InkWell(
@@ -371,17 +395,7 @@ class _GridProductCardState extends State<GridProductCard> {
     await CartServices().removeFromCart(widget.id);
   }
 
-//  initVideo(){
-//    if(widget.video.isNotEmpty){
-//      _controller = VideoPlayerController.network(
-//          '${widget.video}')
-//        ..initialize().then((_) {
-//          // Ensure the first frame is shofter the wn avideo is initialized, even before the play button has been pressed.
-//          setState(() {});
-//        });
-//      _controller.setLooping(true);
-//    }
-//  }
+
 
   @override
   void initState() {
@@ -454,7 +468,7 @@ class _GridProductCardState extends State<GridProductCard> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    widget.type=="service"?SizedBox():Text(
                       "${widget.price} QAR",
                       textDirection: TextDirection.ltr,
                       style: TextStyle(
@@ -465,22 +479,39 @@ class _GridProductCardState extends State<GridProductCard> {
                     SizedBox(
                       width: 1,
                     ),
-                    InkWell(
-                      onTap: () {
-                        GetCategories()
-                            .sendClickCount(widget.providerId, "whatsapp");
-                       whatsapp(widget.whatsappNumber??"");
-                      },
-                      child: Container(
-                        height: 30,
-                        child: Image.asset(
-                          "assets/icon/whatsapp.png",
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            GetCategories()
+                                .sendClickCount(widget.providerId, "whatsapp");
+                           whatsapp(widget.whatsappNumber??"");
+                          },
+                          child: Container(
+                            height: 30,
+                            child: Image.asset(
+                              "assets/icon/whatsapp.png",
+                            ),
+                          ),
                         ),
-                      ),
+                        InkWell(
+                          onTap: () async {
+                            GetCategories().sendClickCount(
+                                widget.providerId, "mobile");
+                            String response = await StatService().mobileStatService(providerId: widget.providerId??"");
+                            if(response=='success'){
+                              _launchURL("tel:${widget.phoneNumber}","mobile");
+                            }
+                          },
+                          child: Container(
+                            height: 30,
+                            child: Image.asset(
+                              "assets/icon/c.png",
+                            ),
+                          ),
+                        ),                      ],
                     ),
-                    SizedBox(
-                      width: 1,
-                    )
+
                   ],
                 ),
               )),
@@ -490,7 +521,7 @@ class _GridProductCardState extends State<GridProductCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              totalAmount == 0
+              widget.type=="service"?SizedBox():totalAmount == 0
                   ? InkWell(
                       onTap: () async {
                         await checkToken();

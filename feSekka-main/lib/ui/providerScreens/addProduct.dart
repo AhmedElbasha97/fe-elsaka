@@ -9,10 +9,12 @@ import 'package:FeSekka/model/provider/subcategoryProvider.dart';
 import 'package:FeSekka/services/get_categories.dart';
 import 'package:FeSekka/services/serviceProvider.dart';
 import 'package:FeSekka/widgets/loader.dart';
+import 'package:FeSekka/widgets/video_player_widget.dart';
 import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 class AddProdcut extends StatefulWidget {
   @override
@@ -31,12 +33,50 @@ class _AddProdcutState extends State<AddProdcut> {
   TextEditingController detailsEnController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController videoLinkController = TextEditingController();
+  String chosenGarageValue = "";
+  String chosenGarageTitle = "";
+  String chosenProductTypeValue = "";
+  String chosenProductTypeTitle = "";
+  List<String> garageList = [
+    "in","out","both","parts"
+  ];
+  List<String> itemTypeList= [
+    "service","product "
+  ];
 
   List<SubCategory> list = [];
   List<String?> mainCats = [];
   SubCategory? selectedCategory;
   List<MainCategory> catList = [];
   XFile? image;
+   VideoPlayerController? _controller;
+  late Future<void> _initializeVideoPlayerFuture;
+
+   File? videoFile = File("");
+
+  Future getVideo() async {
+    Future<XFile?> _videoFile =
+    ImagePicker().pickVideo(source: ImageSource.gallery);
+    _videoFile.then((file) async {
+      setState(() {
+        videoFile = File(file?.path??"");
+        _controller = VideoPlayerController.file(File(videoFile?.path??""));
+
+        // Initialize the controller and store the Future for later use.
+        _initializeVideoPlayerFuture = _controller!.initialize();
+
+        // Use the controller to loop the video.
+        _controller?.setLooping(true);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    // Ensure disposing of the VideoPlayerController to free up resources.
+    _controller?.dispose();
+    super.dispose();
+  }
   getData() async {
     list = await ServiceProviderService().getSubcatogies();
     catList = await GetCategories().getMainCategory();
@@ -61,6 +101,9 @@ class _AddProdcutState extends State<AddProdcut> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> garageListTitle = [AppLocalizations.of(context)!.translate('garageTap1')!,AppLocalizations.of(context)!.translate('garageTap2')!,AppLocalizations.of(context)!.translate('garageTap3')!,AppLocalizations.of(context)!.translate('garageTap4')!];
+    List<String> productTypeListTitle = [AppLocalizations.of(context)!.translate('productType1')!,AppLocalizations.of(context)!.translate('productType2')!];
+
     return Scaffold(
       appBar: AppBar(),
       body: ListView(
@@ -118,6 +161,30 @@ class _AddProdcutState extends State<AddProdcut> {
               ),
             ),
           ),
+          SizedBox(
+            height: 10,
+          ),
+          _controller == null?InkWell(onTap: () async {
+            await getVideo();
+          },
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.3,
+              margin: EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                  borderRadius:
+                  BorderRadius.all(Radius.circular(20)),
+                  border: Border.all(color: Color(0xFFB9B9B9)),
+                  color: Color(0xFFF3F3F3)),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.video_camera_back_rounded,
+                size: 30,
+              ),
+
+            ),
+          ):VideoPlayerWidget(videoPlayerController: _controller!),
+
           SizedBox(
             height: 10,
           ),
@@ -458,6 +525,337 @@ class _AddProdcutState extends State<AddProdcut> {
           SizedBox(
             height: 10,
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: PopupMenuButton<String>(
+              itemBuilder: (context) =>
+              [
+                PopupMenuItem(
+                  value:itemTypeList[0],
+                  textStyle: TextStyle(
+                      color:  Colors.grey[700],
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                  onTap: (){
+                    chosenProductTypeTitle=productTypeListTitle[0];
+                    chosenProductTypeValue=itemTypeList[0];
+                    setState(() {
+
+                    });
+
+                  },
+                  child: SizedBox(
+                    width:MediaQuery.of(context).size.width*0.9,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              productTypeListTitle[0],
+                              style: TextStyle(
+                                  color:  Colors.grey[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          color:  Colors.grey[700],
+                          height: 1,
+                          thickness: 2,
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuItem(
+                  value:itemTypeList[1],
+                  textStyle: TextStyle(
+                      color:  Colors.grey[700],
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                  onTap: (){
+                    chosenProductTypeTitle=productTypeListTitle[1];
+                    chosenProductTypeValue=itemTypeList[1];
+                    setState(() {
+
+                    });
+                  },
+                  child: SizedBox(
+                    width:MediaQuery.of(context).size.width*0.9,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              productTypeListTitle[1],
+                              style: TextStyle(
+                                  color:  Colors.grey[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          color:  Colors.grey[700],
+                          height: 1,
+                          thickness: 2,
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]
+              ,
+
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width*0.9,
+                  height: MediaQuery.of(context).size.height*0.07,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black,width: 1)
+                  ),
+                  child:   Center(
+                      child:  Text(
+                        chosenProductTypeTitle==""?"${AppLocalizations.of(context)!.translate('productTypeTitle')}":chosenProductTypeTitle  ,
+                        style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15),
+                      )
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: PopupMenuButton<String>(
+              itemBuilder: (context) =>
+              [
+                PopupMenuItem(
+                  value:garageList[0],
+                  textStyle: TextStyle(
+                      color:  Colors.grey[700],
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                  onTap: (){
+                    chosenGarageTitle=garageListTitle[0];
+                    chosenGarageValue=garageList[0];
+                    setState(() {
+                    });
+                  },
+                  child: SizedBox(
+                    width:MediaQuery.of(context).size.width*0.9,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              garageListTitle[0],
+                              style: TextStyle(
+                                  color:  Colors.grey[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          color:  Colors.grey[700],
+                          height: 1,
+                          thickness: 2,
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuItem(
+                  value:garageList[1],
+                  textStyle: TextStyle(
+                      color:  Colors.grey[700],
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                  onTap: (){
+                    chosenGarageTitle=garageListTitle[1];
+                    chosenGarageValue=garageList[1];
+                    setState(() {
+
+                    });
+                  },
+                  child: SizedBox(
+                    width:MediaQuery.of(context).size.width*0.9,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              garageListTitle[1],
+                              style: TextStyle(
+                                  color:  Colors.grey[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          color:  Colors.grey[700],
+                          height: 1,
+                          thickness: 2,
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuItem(
+                  value:garageList[2],
+                  textStyle: TextStyle(
+                      color:  Colors.grey[700],
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                  onTap: (){
+
+                    chosenGarageTitle=garageListTitle[2];
+                    chosenGarageValue=garageList[2];
+                    setState(() {
+
+                    });
+                  },
+                  child: SizedBox(
+                    width:MediaQuery.of(context).size.width*0.9,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              garageListTitle[2],
+                              style: TextStyle(
+                                  color:  Colors.grey[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          color:  Colors.grey[700],
+                          height: 1,
+                          thickness: 2,
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuItem(
+                  value:garageList[3],
+                  textStyle: TextStyle(
+                      color:  Colors.grey[700],
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                  onTap: (){
+
+                    chosenGarageTitle=garageListTitle[3];
+                    chosenGarageValue=garageList[3];
+                    setState(() {
+
+                    });
+                  },
+                  child: SizedBox(
+                    width:MediaQuery.of(context).size.width*0.9,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              garageListTitle[3],
+                              style: TextStyle(
+                                  color:  Colors.grey[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          color:  Colors.grey[700],
+                          height: 1,
+                          thickness: 2,
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]
+              ,
+
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width*0.9,
+                  height: MediaQuery.of(context).size.height*0.07,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black,width: 1)
+                  ),
+                  child:   Center(
+                      child:  Text(
+                        chosenGarageTitle==""?"${AppLocalizations.of(context)!.translate('selectingGarageTitle')}":chosenGarageTitle  ,
+                        style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15),
+                      )
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
           isLoading
               ? Loader()
               : InkWell(
@@ -574,7 +972,8 @@ class _AddProdcutState extends State<AddProdcut> {
         _images.length < 4 ? null : _images[3],
         selectedCategory == null ? null : selectedCategory!.subcategoryId,
         mainCats.isEmpty == null ? null : mainCats,
-        videoLinkController.text);
+        videoLinkController.text,
+    chosenProductTypeValue,videoFile?.path.isEmpty??true ? null :videoFile,chosenGarageValue );
     isLoading = false;
     setState(() {});
     Navigator.of(context).pop(true);

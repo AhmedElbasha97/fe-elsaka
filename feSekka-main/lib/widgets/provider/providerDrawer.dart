@@ -102,7 +102,7 @@ class _ProviderDrawerState extends State<ProviderDrawer> {
                       fontSize: 18,
                       color: Color(0xFF66a5b4),
                       fontWeight: FontWeight.bold)),
-              leading: Icon(Icons.edit, color: Color(0xFF66a5b4)),
+              leading: Icon(Icons.person, color: Color(0xFF66a5b4)),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ProviderProfileScreen(),

@@ -11,6 +11,7 @@ class ProductModel {
   int? quantity;
   ProviderModel? provider;
   String? shareurl;
+  String? type;
 
   ProductModel(
       {this.id,
@@ -25,6 +26,7 @@ class ProductModel {
       this.detailsEn,
       this.provider,
         this.shareurl,
+        this.type
       });
 
   factory ProductModel.fromJson(Map<String, dynamic> parsedJson) {
@@ -42,7 +44,9 @@ class ProductModel {
         detailsAr: parsedJson['details_ar'],
         detailsEn: parsedJson['details_en'],
         quantity: parsedJson['in_mycart'],
+        type:parsedJson["type"],
         provider: ProviderModel.fromJson(parsedJson['provider'],
+
 
         )
         //subCategory: subCategoryList

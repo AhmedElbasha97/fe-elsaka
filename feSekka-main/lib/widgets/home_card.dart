@@ -38,10 +38,10 @@ class _HomeCardState extends State<HomeCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
+
       child: CachedNetworkImage(
         imageUrl: "${widget.image}",
-        fit: BoxFit.cover,
+        fit: BoxFit.fitWidth,
         placeholder: (context, url) => Center(child: CircularProgressIndicator(),),
       ),
     );

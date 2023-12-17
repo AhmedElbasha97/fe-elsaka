@@ -87,9 +87,28 @@
   "newProvider": "مزود خدمة جديد",
   "linkYoutube": "رابط الفيديو",
   "mainCat": "القسم الرئيسي",
+  "mainCatSelection": "أختر القسم الرئيسي الذى سوف تقدم فيه خدماتك",
   "agree": "موافق",
   "providerAlert": "عند محاولة دخولك لحساب مزود خدمة فانه يتم تسجيل خروجك من حسابك الحالي",
   "homeUser": "الصفحه الرئيسيه للمستخدم",
   "addNewProduct": "هل تريد اضافه منتج جديد",
-  "noProductRecorded": "لا توجد اى منتجات مسجله حتى الأن"
+  "noProductRecorded": "لا توجد اى منتجات مسجله حتى الأن",
+  "chosenCategory":"القسم المختار هو",
+  "mainCatSelectionForEdit": "عدل الأقسم الرئيسية الذى سوف تقدم فيه خدماتك",
+  "selectingGarageTitle":"ما هو نوع الخدمة",
+  "garageTitle1": "تقدم الخدمه داخل الجراج",
+  "garageTitle2": "تقدم الخدمه خارج الجراج",
+  "garageTitle3": "تقدم الخدمه داخل الجراج و خارج الجراج",
+  "garageTap1":"كل الخدمات",
+  "garageTap2":"خدمة مكان تواجدك",
+  "garageTap3":"خدمة داخل الكراج ",
+  "garageTap4":"قطع الغيار",
+  "productTypeTitle": "أختر نوع الشىء المقدم",
+  "productType1": "الشىء المقدم: خدمه",
+  "productType2": "الشىء المقدم: منتج",
+  "openLocation": "فتح الموقع على تطبيق جوجل ماب"
+
+
+
+
 }

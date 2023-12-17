@@ -47,3 +47,5 @@ void pushPageReplacement(BuildContext context, Widget widget) {
   Navigator.pushReplacement(
       context, MaterialPageRoute(builder: (context) => widget));
 }
+const Color kWhiteColor = Color(0xFFEEF0F2);
+const Color kGrayColor = Color(0xFF9E9C9C);
