@@ -39,14 +39,13 @@ class _LogInScreenState extends State<LogInScreen> {
     if(!phoneError&&!passwordError){
       isServerLoading=true;
       setState(() {});
-      String response = await LoginService().loginService(phone: phoneController.text,password: passwordController.text,);
+      String response = await LoginService().loginService(phone: phoneController.text,password: passwordController.text, context: context,);
       if(response=='success'){
+        print("dfssfsdf");
           pushPageReplacement(context,MenOrWomen());
       }
       else{
         final snackBar = SnackBar(content: Text('$response'));
-
-// Find the Scaffold in the widget tree and use it to show a SnackBar.
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
       isServerLoading=false;

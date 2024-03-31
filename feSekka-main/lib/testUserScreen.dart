@@ -24,7 +24,7 @@ class _TestUserScreenState extends State<TestUserScreen> {
   getUserType() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool checker = await ServiceProviderService().serviceCheckToken();
-    if(!checker){
+    if(checker){
       prefs.clear();
     }
 

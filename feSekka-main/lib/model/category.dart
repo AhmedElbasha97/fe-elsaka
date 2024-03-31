@@ -19,6 +19,8 @@ class CategoryModel {
   String? long;
   String? mobile;
   List<String>? photos;
+  String? rate;
+
   CategoryModel(
       {this.id,
       this.sub,
@@ -27,7 +29,9 @@ class CategoryModel {
       this.facebook,
       this.insgram,
       this.youtube,
-      this.whatsapp,
+        this.rate,
+
+        this.whatsapp,
       this.snapchat,
       this.titleEn,
       this.detailsAr,
@@ -68,6 +72,7 @@ class CategoryModel {
     lat = json["lat"];
     long = json["long"];
     mobile = json["mobile"];
+    rate = json["rate"];
   }
 }
 

@@ -103,7 +103,9 @@ class _CartScreenState extends State<CartScreen> {
                               padding: EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 5),
                               child: LinearProductCard(
-
+                                providerNameAr: "",
+                                providerNameEn: "",
+                                whatsappNumber: "",
                                 id: productModelList[index].id,
                                 titleEn: productModelList[index].titleEn,
                                 titleAr: productModelList[index].titleAr,

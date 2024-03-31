@@ -415,250 +415,369 @@ class _GridProductCardState extends State<GridProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.4,
-      height: MediaQuery.of(context).size.height * 0.6,
-      color: Colors.white,
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => photoViewDialog(),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.14,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-              child: CachedNetworkImage(
-                imageUrl: widget.image.isEmpty
-                    ? widget.imgList!.isEmpty
-                        ? ""
-                        : "${widget.imgList!.first}"
-                    : "${widget.image}",
-                placeholder: (context, url) => SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.2,
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: CircularProgressIndicator(),
+    return widget.type=="service"?ClipRRect(
+      borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),topRight: Radius.circular(15.0)),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.4,
+        height: MediaQuery.of(context).size.height * 0.6,
+        color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              children: [
+                InkWell(
+                  onTap: () => photoViewDialog(),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.14,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                    child:ClipRRect(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),topRight: Radius.circular(15.0)),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.image.isEmpty
+                            ? widget.imgList!.isEmpty
+                            ? ""
+                            : "${widget.imgList!.first}"
+                            : "${widget.image}",
+                        placeholder: (context, url) => SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          height: MediaQuery.of(context).size.height * 0.1,
+                          child: FittedBox(
+                            fit: BoxFit.cover,
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                        fit: BoxFit.fill,
+                      ),
+                    ),
                   ),
                 ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Text(
-                  "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Cairo',
-                      fontSize: 14),
-                  overflow: TextOverflow.ellipsis),
-            ),
-          ),
-          Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    widget.type=="service"?SizedBox():Text(
-                      "${widget.price} QAR",
-                      textDirection: TextDirection.ltr,
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                    child: Text(
+                      "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Cairo',
-                          fontSize: 13),
-                    ),
-                    SizedBox(
-                      width: 1,
-                    ),
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            GetCategories()
-                                .sendClickCount(widget.providerId, "whatsapp");
-                           whatsapp(widget.whatsappNumber??"");
-                          },
-                          child: Container(
-                            height: 30,
-                            child: Image.asset(
-                              "assets/icon/whatsapp.png",
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () async {
-                            GetCategories().sendClickCount(
-                                widget.providerId, "mobile");
-                            String response = await StatService().mobileStatService(providerId: widget.providerId??"");
-                            if(response=='success'){
-                              _launchURL("tel:${widget.phoneNumber}","mobile");
-                            }
-                          },
-                          child: Container(
-                            height: 30,
-                            child: Image.asset(
-                              "assets/icon/c.png",
-                            ),
-                          ),
-                        ),                      ],
-                    ),
-
-                  ],
+                          fontSize: 14),
+                      maxLines: 3,),
+                  ),
                 ),
-              )),
-          SizedBox(
-            height: 5,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              widget.type=="service"?SizedBox():totalAmount == 0
-                  ? InkWell(
-                      onTap: () async {
-                        await checkToken();
-                        if (token == "") {
-                          _showMyDialog();
-                        } else {
-                          widget.addItemToCart!();
-                          addItemToCart();
-                          totalAmount=totalAmount != null?totalAmount:0+1;
-                          setState(() {});
-                        }
-                      },
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.25,
-                        height: MediaQuery.of(context).size.height * 0.040,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          color: Color(0xFF0D986A),
+              ],
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+
+
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          GetCategories()
+                              .sendClickCount(widget.providerId, "whatsapp");
+                          whatsapp(widget.whatsappNumber??"");
+                        },
+                        child: Container(
+                          height: 30,
+                          child: Image.asset(
+                            "assets/icon/whatsapp.png",
+                          ),
                         ),
-                        alignment: Alignment.center,
-                        child: Text("Add +",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 16)),
                       ),
-                    )
-                  : Container(
-                      width: MediaQuery.of(context).size.width * 0.25,
-                      height: MediaQuery.of(context).size.height * 0.040,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: InkWell(
-                              onTap: () {
-                                widget.addItemToCart!();
-                                addItemToCart();
-                                totalAmount=totalAmount != null?totalAmount:0+1;
-                                print(widget.totalAmount);
-                                setState(() {});
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(5),
-                                    bottomRight: Radius.circular(5),
-                                  ),
-                                  color: Colors.black,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "+",
-                                  style: TextStyle(
-                                      fontSize: 35,
-                                      color: Colors.white,
-                                      height: 1),
-                                ),
-                              ),
-                            ),
+                      InkWell(
+                        onTap: () async {
+                          GetCategories().sendClickCount(
+                              widget.providerId, "mobile");
+                          String response = await StatService().mobileStatService(providerId: widget.providerId??"");
+                          if(response=='success'){
+                            _launchURL("tel:${widget.phoneNumber}","mobile");
+                          }
+                        },
+                        child: Container(
+                          height: 30,
+                          child: Image.asset(
+                            "assets/icon/c.png",
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              color: Color(0xFFe0e0e0),
-                              alignment: Alignment.center,
-                              child: Text("$totalAmount"),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: InkWell(
-                              onTap: () {
-                                if (totalAmount! > 0) {
-                                  widget.removeItemFromCart!();
-                                  totalAmount=totalAmount != null?totalAmount:0-1;;
-                                  decreaseItemFromCart(totalAmount);
-                                  if (totalAmount == 0) {
-                                    removeItemFromCart();
-                                  }
-                                  setState(() {});
-                                }
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(5),
-                                    bottomLeft: Radius.circular(5),
-                                  ),
-                                  color: Colors.black,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "-",
-                                  style: TextStyle(
-                                      fontSize: 60,
-                                      color: Colors.white,
-                                      height: 0.75),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
+                      ),                      ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+
+                      Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
+                      InkWell(
+                        onTap: () {
+                          if (_controller == null) {
+                            isLoadingVideo = true;
+                            setState(() {});
+                            //initVideo();
+                            Future.delayed(Duration(seconds: 2), () {
+                              isLoadingVideo = false;
+                              setState(() {});
+                              moreDialog();
+                            });
+                          } else {
+                            moreDialog();
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          height: MediaQuery.of(context).size.height * 0.040,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              border: Border.all(color: Colors.black)),
+                          alignment: Alignment.center,
+                          child: Text(
+                              "${AppLocalizations.of(context)!.translate('more')}",
+                              style: TextStyle(fontSize: 16)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+
+          ],
+        ),
+      ),
+    ):
+    ClipRRect(
+      borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),topRight: Radius.circular(15.0)),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.4,
+        height: MediaQuery.of(context).size.height * 0.6,
+        color: Colors.white,
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () => photoViewDialog(),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.14,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0),topRight: Radius.circular(15.0)),
+                  child: CachedNetworkImage(
+                    imageUrl: widget.image.isEmpty
+                        ? widget.imgList!.isEmpty
+                            ? ""
+                            : "${widget.imgList!.first}"
+                        : "${widget.image}",
+                    placeholder: (context, url) => SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: FittedBox(
+                        fit: BoxFit.fill,
+                        child: CircularProgressIndicator(),
                       ),
                     ),
-              Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
-              InkWell(
-                onTap: () {
-                  if (_controller == null) {
-                    isLoadingVideo = true;
-                    setState(() {});
-                    //initVideo();
-                    Future.delayed(Duration(seconds: 2), () {
-                      isLoadingVideo = false;
-                      setState(() {});
-                      moreDialog();
-                    });
-                  } else {
-                    moreDialog();
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  height: MediaQuery.of(context).size.height * 0.040,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      border: Border.all(color: Colors.black)),
-                  alignment: Alignment.center,
-                  child: Text(
-                      "${AppLocalizations.of(context)!.translate('more')}",
-                      style: TextStyle(fontSize: 16)),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Text(
+                    "${Localizations.localeOf(context).languageCode == "en" ? widget.titleEn : widget.titleAr}",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Cairo',
+                        fontSize: 14),
+                    overflow: TextOverflow.ellipsis),
+              ),
+            ),
+            Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                    Text(
+                        "${widget.price} QAR",
+                        textDirection: TextDirection.ltr,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Cairo',
+                            fontSize: 13),
+                      ),
+                      SizedBox(
+                        width: 1,
+                      ),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              GetCategories()
+                                  .sendClickCount(widget.providerId, "whatsapp");
+                             whatsapp(widget.whatsappNumber??"");
+                            },
+                            child: Container(
+                              height: 30,
+                              child: Image.asset(
+                                "assets/icon/whatsapp.png",
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              GetCategories().sendClickCount(
+                                  widget.providerId, "mobile");
+                              String response = await StatService().mobileStatService(providerId: widget.providerId??"");
+                              if(response=='success'){
+                                _launchURL("tel:${widget.phoneNumber}","mobile");
+                              }
+                            },
+                            child: Container(
+                              height: 30,
+                              child: Image.asset(
+                                "assets/icon/c.png",
+                              ),
+                            ),
+                          ),                      ],
+                      ),
+
+                    ],
+                  ),
+                )),
+            SizedBox(
+              height: 5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                        width: MediaQuery.of(context).size.width * 0.25,
+                        height: MediaQuery.of(context).size.height * 0.040,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: InkWell(
+                                onTap: () {
+                                  widget.addItemToCart!();
+                                  addItemToCart();
+                                  totalAmount=totalAmount != null?totalAmount:0+1;
+                                  print(widget.totalAmount);
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(5),
+                                      bottomRight: Radius.circular(5),
+                                    ),
+                                    color: Colors.black,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    "+",
+                                    style: TextStyle(
+                                        fontSize: 35,
+                                        color: Colors.white,
+                                        height: 1),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                color: Color(0xFFe0e0e0),
+                                alignment: Alignment.center,
+                                child: Text("$totalAmount"),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: InkWell(
+                                onTap: () {
+                                  if (totalAmount! > 0) {
+                                    widget.removeItemFromCart!();
+                                    totalAmount=totalAmount != null?totalAmount:0-1;;
+                                    decreaseItemFromCart(totalAmount);
+                                    if (totalAmount == 0) {
+                                      removeItemFromCart();
+                                    }
+                                    setState(() {});
+                                  }
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(5),
+                                      bottomLeft: Radius.circular(5),
+                                    ),
+                                    color: Colors.black,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    "-",
+                                    style: TextStyle(
+                                        fontSize: 60,
+                                        color: Colors.white,
+                                        height: 0.75),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
+                InkWell(
+                  onTap: () {
+                    if (_controller == null) {
+                      isLoadingVideo = true;
+                      setState(() {});
+                      //initVideo();
+                      Future.delayed(Duration(seconds: 2), () {
+                        isLoadingVideo = false;
+                        setState(() {});
+                        moreDialog();
+                      });
+                    } else {
+                      moreDialog();
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    height: MediaQuery.of(context).size.height * 0.040,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        border: Border.all(color: Colors.black)),
+                    alignment: Alignment.center,
+                    child: Text(
+                        "${AppLocalizations.of(context)!.translate('more')}",
+                        style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

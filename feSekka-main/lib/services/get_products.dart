@@ -24,10 +24,12 @@ class GetProducts{
           ? response = await Dio().get("$url$category$categoryId/page/$page")
           : response = await Dio().get("$url$category$categoryId/page/$page", options: Options(headers: {"token": "$token"}));
       List data = response.data['products'];
+
       categoryPhotos = response.data['category_slider'];
       offerDialogAr = response.data['category_slider_details_ar'];
       offerDialogEn = response.data['category_slider_details_en'];
       data.forEach((element) {
+
         productModelList.add(ProductModel.fromJson(element));
       });
 

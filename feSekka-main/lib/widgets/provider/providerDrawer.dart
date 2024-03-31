@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../ui/provider_reqeust_screens/provider_request_list_screen.dart';
+
 class ProviderDrawer extends StatefulWidget {
   @override
   _ProviderDrawerState createState() => _ProviderDrawerState();
@@ -127,6 +129,26 @@ class _ProviderDrawerState extends State<ProviderDrawer> {
               ));
             },
           ),    Divider(
+            height: 1,
+            thickness: 2,
+            endIndent: 30,
+            indent: 30,
+          ),
+         ListTile(
+            title: Text(
+                "الطلبات",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF66a5b4),
+                    fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.request_page, color: Color(0xFF66a5b4)),
+            onTap: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ProviderRequestListScreen(),
+              ));
+            },
+          ),
+          Divider(
             height: 1,
             thickness: 2,
             endIndent: 30,

@@ -15,7 +15,7 @@ class GetCategories {
   final String location = "/location";
   final String countClick = "service/provider/clicks";
 
-  Future<List<CategoryModel>> getCategory(String? id,String garage) async {
+  Future<List<CategoryModel>> getCategory(String? id,List<String> garage,List<String> zones, ) async {
     Response response;
     List<CategoryModel> categoryModelList = <CategoryModel>[];
     Datum? county;
@@ -25,9 +25,11 @@ class GetCategories {
       link += "?country=${county.countryId}";
     }
     print(link);
+    print( 'options: Options(headers: {"garage:""$garage,"zones:""$zones"}),');
     try {
       response = await Dio().get(link,
-          options: Options(headers: {"garage":garage}),
+          options: Options(headers: {"garage":garage,
+            "zones":zones}),
       );
       List data = response.data;
       data.forEach((element) {
@@ -57,11 +59,18 @@ class GetCategories {
     return categoryModelList;
   }
 
-  Future<List<CategoryModel>> searchCategory(String keyword) async {
+  Future<List<CategoryModel>> searchCategory(String keyword,List<String> garage,List<String> zones,String isNew,String partId,String brandId,String modelId,String yearId) async {
     Response response;
     List<CategoryModel> categoryModelList = <CategoryModel>[];
     try {
-      response = await Dio().get('$url$category?keyword=$keyword');
+      response = await Dio().get('$url$category?keyword=$keyword',
+          options: Options(headers: {"garage":garage,
+            "zones":zones,
+            "is_new":isNew,
+            "part_id":partId,
+            "brand_id":brandId,
+            "model_id":modelId,
+            "year_id":yearId}),);
       List data = response.data;
       data.forEach((element) {
         categoryModelList.add(CategoryModel.fromJson(element));

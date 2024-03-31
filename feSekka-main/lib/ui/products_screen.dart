@@ -29,6 +29,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:star_rating/star_rating.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/loader.dart';
@@ -45,6 +46,7 @@ class ProductsScreen extends StatefulWidget {
   String? mobile;
   List<WrokHours>? shifts;
   List<String>? photos;
+  String? rating;
   ProductsScreen(
       this.categoryId,
       this.categoryName,
@@ -55,6 +57,7 @@ class ProductsScreen extends StatefulWidget {
       this.long,
       this.whatsApp,
       this.mobile,
+      this.rating,
       this.photos);
 
   @override
@@ -96,6 +99,33 @@ class _ProductsScreenState extends State<ProductsScreen>
   bool isLoadingFilter = false;
   List<Widget> dotsList = [];
   TabController? tabController;
+  whatsapp(String contact) async {
+    print(contact);
+    String response = await StatService().whatsAppStatService(providerId: widget.categoryId??"");
+    if (response == 'success') {
+
+
+      try {
+        if (Platform.isIOS) {
+          var iosUrl = "https://wa.me/$contact?text=${Uri.parse(
+              "I saw a Store ${widget
+                  .categoryName} In the application. Car Serv.\n رأيت المحل ${widget
+                  .categoryName}   في تطبيق كار سيرف")} ";
+          await launchUrl(Uri.parse(iosUrl));
+        }
+        else {
+          var androidUrl = "whatsapp://send?phone=$contact&text=   \n I saw a Store ${widget
+              .categoryName} In the application. Car Surv.\n رأيت المحل. ${widget
+              .categoryName}  في تطبيق كار سيرف";
+
+
+          await launchUrl(Uri.parse(androidUrl));
+        }
+      } on Exception {
+
+      }
+    }
+  }
   makingDotsForCarouselSlider(int activeIndex){
     int productLength = child?.length??0;
     dotsList = [];
@@ -816,10 +846,7 @@ class _ProductsScreenState extends State<ProductsScreen>
         backgroundColor: Colors.grey[100],
         appBar: AppBar(
           backgroundColor: Colors.grey[300],
-          title: Text(
-            "${widget.categoryName}",
-            style: TextStyle(color: Colors.black, fontFamily: 'tajawal'),
-          ),
+
           centerTitle: true,
           leading: IconButton(
             icon: Icon(
@@ -880,6 +907,14 @@ class _ProductsScreenState extends State<ProductsScreen>
                   controller: _loadMoreDataController,
                   child: Column(
                     children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          "${widget.categoryName}",
+                          style: TextStyle(color: Colors.black, fontFamily: 'tajawal',fontSize: 20,),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                       Padding(padding: EdgeInsets.symmetric(vertical: 10)),
                       child != null && child!.isNotEmpty
                           ? CarouselSlider.builder(
@@ -924,19 +959,43 @@ class _ProductsScreenState extends State<ProductsScreen>
 
 
                       Padding(padding: EdgeInsets.only(top: 20)),
-                      InkWell(
-                        onTap: (){
-                          showLocationInGoogleMap();
+                      StarRating(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        length: 5,
+                        rating: double.parse("${widget.rating??"0"}.0"??"0.0"),
+                        between: 5,
+                        starSize: 30,
 
-                        },
-                        child:Text(
-                          "${AppLocalizations.of(context)!.translate('openLocation')}",
-                          style: TextStyle(
-                              color: Colors.grey[700],
+                      ),
+                      Padding(padding: EdgeInsets.only(top: 20)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.location_on,
+                              color: Color(0xFF66a5b4),
+                              size: 30,
+                            ),
+                            onPressed: () {
+                              openMap();
+                            },
+                          ),
+                          InkWell(
+                            onTap: (){
+                              showLocationInGoogleMap();
 
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
+                            },
+                            child:Text(
+                              "${AppLocalizations.of(context)!.translate('openLocation')}",
+                              style: TextStyle(
+                                  color: Colors.grey[700],
+
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                       ),
                       Padding(padding: EdgeInsets.only(top: 20)),
                       Container(
@@ -946,15 +1005,16 @@ class _ProductsScreenState extends State<ProductsScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.location_on,
-                                color: Color(0xFF66a5b4),
-                                size: 30,
-                              ),
-                              onPressed: () {
-                                openMap();
+                            InkWell(
+                              onTap: () {
+                                whatsapp(widget.whatsApp??"");
                               },
+                              child: Container(
+                                height: 30,
+                                child: Image.asset(
+                                  "assets/icon/whatsapp.png",
+                                ),
+                              ),
                             ),
                             IconButton(
                               icon: Icon(
@@ -1217,6 +1277,8 @@ class _ProductsScreenState extends State<ProductsScreen>
                                                               productModelList[
                                                                       index]
                                                                   .images, type: productModelList[index].type??"",
+                                                              providerNameAr: productModelList[index].provider?.titlear??"",
+                                                              providerNameEn: productModelList[index].provider?.titleen??"",
                                                         ),
                                                       ),
                                                     )));

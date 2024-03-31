@@ -66,11 +66,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token');
+    token = await prefs.getString('token');
     getData();
     Response response = await Dio().post("https://carserv.net/api/info",
         options: Options(headers: {"token": "$token"}));
-
+print(response.data.toString());
     nameController.text = response.data['data'][0]['name'];
     emailController.text = response.data['data'][0]['email'];
     mobileController.text = response.data['data'][0]['mobile'];
@@ -229,7 +229,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.8,
+                            width: MediaQuery.of(context).size.width * 0.75,
                             child: TextField(
                               controller: mobileController,
                               keyboardType: TextInputType.number,

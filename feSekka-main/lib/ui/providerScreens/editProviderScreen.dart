@@ -21,6 +21,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../model/zones_model.dart';
 import '../../services/get_categories.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -36,6 +37,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   List<String> garageList = [
     "in","out","both","parts"
   ];
+  List<String> chosenZoneId = [];
+
+  List<ZonesModel>? zones = [];
   String chosenGarageValue = "";
   String chosenGarageTitle = "";
 
@@ -58,6 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   getCountry() async {
     catList = await GetCategories().getMainCategory();
     countriesData = await AppInfoService().getCountries();
+    zones = await AppInfoService().getZones();
     try {
       selectedCountry =
           countriesData!.data!.firstWhere((element) => element.titlear == "قطر");
@@ -209,7 +214,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           long: selectedPlace == null
               ? widget.data!.long
               : "${selectedPlace?.longitude}",
-          country: selectedCountry == null ? null : selectedCountry!.countryId,garage: chosenGarageValue);
+          country: selectedCountry == null ? null : selectedCountry!.countryId,
+          garage: chosenGarageValue,
+        zoneId:   chosenZoneId
+
+      );
       loading = false;
       setState(() {});
       if (result != null && result.status!) {
@@ -847,6 +856,109 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                         ),
                         Padding(padding: EdgeInsets.only(top: 25)),
+                    
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: PopupMenuButton<String>(
+                            itemBuilder: (context) =>
+                                zones!.map((e){
+                                  return  PopupMenuItem(
+                                    value:e.zoneId,
+                                    textStyle: TextStyle(
+                                        color:  Colors.grey[700],
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                    onTap: (){
+                                      if(chosenZoneId.contains( e.zoneId)){
+                                        chosenZoneId.remove(e.zoneId);
+                                      }else{
+                                        chosenZoneId.add(e.zoneId??"");
+                                      }
+                                      setState(() {
+                                      });
+                                    },
+                                    child: SizedBox(
+                                      width:MediaQuery.of(context).size.width*0.9,
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              chosenZoneId.contains( e.zoneId)?Container(
+                                                height: 30.0,
+                                                width: 30.0,
+                                                decoration: BoxDecoration(
+                                                  color: Color(0xFF66a5b4),
+
+                                                  borderRadius: const BorderRadius.all( Radius.circular(25.0)),
+                                                ),
+                                                child: Center(
+                                                  child: Icon( Icons.done,color: Colors.white,),
+                                                ),
+                                              ):
+                                              Container(
+                                                height: 30.0,
+                                                width: 30.0,
+                                                decoration: BoxDecoration(
+                                                  color:  Colors.white,
+                                                  border: Border.all(
+                                                      width: 2.0,
+                                                      color:  Color(0xFF66a5b4)),
+                                                  borderRadius: const BorderRadius.all( Radius.circular(25.0)),
+                                                ),
+
+                                              ),
+                                              Text(
+                                                '${Localizations.localeOf(context).languageCode == "en" ?e.titleEn:e.titleAr}',
+                                                style: TextStyle(
+                                                    color:  Colors.grey[700],
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Divider(
+                                            color:  Colors.grey[700],
+                                            height: 1,
+                                            thickness: 2,
+                                            endIndent: 0,
+                                            indent: 0,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList()
+                            ,
+
+                            child: Center(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width*0.9,
+                                height: MediaQuery.of(context).size.height*0.07,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.black,width: 1)
+                                ),
+                                child:   Center(
+                                    child:  Text(
+                                      "${AppLocalizations.of(context)!.translate('zoneTitle1')}",
+                                      style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15),
+                                    )
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         InkWell(
                           onTap: () => updateInfo(),
                           child: Container(

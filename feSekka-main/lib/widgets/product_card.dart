@@ -6,6 +6,7 @@ import 'package:FeSekka/services/get_categories.dart';
 import 'package:FeSekka/services/stats_services.dart';
 import 'package:FeSekka/ui/logIn_screen.dart';
 import 'package:FeSekka/ui/signUp_screen.dart';
+import 'package:FeSekka/widgets/video_player_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:FeSekka/I10n/app_localizations.dart';
 import 'package:FeSekka/services/cart_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class LinearProductCard extends StatefulWidget {
@@ -36,6 +38,8 @@ class LinearProductCard extends StatefulWidget {
   String? phoneNumber;
   String shareUrl;
   String type;
+  String providerNameAr;
+  String providerNameEn;
   LinearProductCard(
       {this.id,
       this.providerId,
@@ -54,7 +58,7 @@ class LinearProductCard extends StatefulWidget {
       this.detailsEn,
       this.whatsappNumber,
       this.detailsAr,
-        required this.shareUrl,this.phoneNumber,required this.type});
+        required this.shareUrl,this.phoneNumber,required this.type,required this.providerNameAr,required this.providerNameEn});
 
   @override
   _LinearProductCardState createState() => _LinearProductCardState();
@@ -65,7 +69,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
    List<Widget>? child;
   int _current = 0;
   bool? checkBoxValue;
-
+  late  VideoPlayerController videoPlayerController;
   // VideoPlayerController _controller;
   late YoutubePlayerController _controller;
 
@@ -197,6 +201,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
   }
 
   whatsapp(String contact) async {
+    print(contact);
     String response = await StatService().whatsAppStatService(providerId: widget.providerId??"");
     if (response == 'success') {
 
@@ -315,6 +320,19 @@ class _LinearProductCardState extends State<LinearProductCard> {
                     maxLines: 2,
                   ),
                   Padding(padding: EdgeInsets.only(top: 10)),
+                  Text(
+                    "${Localizations.localeOf(context).languageCode == "en" ? widget.providerNameEn : widget.providerNameAr}",
+                    style: TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.bold),
+                    maxLines: 2,
+                  ),
+
+                  Padding(padding: EdgeInsets.only(top: 10)),
+                  widget.video == ""?Container(
+
+
+                  ):VideoPlayerWidget(videoPlayerController: videoPlayerController!),
+                  Padding(padding: EdgeInsets.only(top: 10)),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 15),
                     alignment: Alignment.topRight,
@@ -330,7 +348,11 @@ class _LinearProductCardState extends State<LinearProductCard> {
         );
           }
       ),
-    );
+    ).then((val){
+      if(widget.video!=""){
+        videoPlayerController.pause();
+      }
+    });
   }
 
   photoViewDialog() {
@@ -403,6 +425,15 @@ class _LinearProductCardState extends State<LinearProductCard> {
     } else {
       totalAmount = int.parse(widget.totalAmount!);
     }
+    if(widget.video != ""){
+      videoPlayerController =
+      VideoPlayerController.network(widget.video??"")
+        ..initialize().then((_) {
+         setState(() {
+
+         });
+        });
+    }
 
   }
 
@@ -471,7 +502,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
                               GetCategories().sendClickCount(
                                   widget.providerId, "whatsapp");
                               whatsapp(
-                                  widget.whatsappNumber??"");
+                                  widget.whatsappNumber!);
                             },
                             child: Container(
                               height: 30,
@@ -591,7 +622,7 @@ class _LinearProductCardState extends State<LinearProductCard> {
                                   ),
                           ),
                           Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                          widget.type=="service"?SizedBox(): Container(
+                          totalAmount! <= 0?SizedBox(): Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 5,
                               ),

@@ -10,10 +10,12 @@ import 'package:FeSekka/services/registration.dart';
 import 'package:FeSekka/ui/men_or_women.dart';
 import 'package:FeSekka/widgets/loader.dart';
 import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../model/provider/authResult.dart';
 import 'map_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -104,26 +106,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
         !phoneError &&
         !passwordError &&
         !dateError) {
-      String? response = await (RegistrationService().registrationService(
-        name: nameController.text,
-        email: emailController.text,
-        phone: selectedCountry == null
-            ? "${selectedCountry!.code}${phoneController.text}"
-            : phoneController.text,
-        password: passwordController.text,
-        gender: "male",
-        address: addressController.text,
-        birthdayDate: "${dateTime.day}/${dateTime.month}/${dateTime.year}",
-        lat: position == null ? 0.0 : position!.latitude,
-        long: position == null ? 0.0 : position!.longitude,
-      ) as FutureOr<dynamic?>);
-      if (response == 'success') {
-        pushPageReplacement(context, MenOrWomen());
-      } else {
-        final snackBar = SnackBar(content: Text('$response'));
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
+      FirebaseMessaging.instance.getToken().then((token) async {
+        Authresult?  response = await RegistrationService().registrationService(
+          name: nameController.text,
+          email: emailController.text,
+          phone: selectedCountry == null
+              ? "${selectedCountry!.code}${phoneController.text}"
+              : phoneController.text,
+          password: passwordController.text,
+          gender: "male",
+          address: addressController.text,
+          birthdayDate: "${dateTime.day}/${dateTime.month}/${dateTime.year}",
+          lat: position == null ? 0.0 : position!.latitude,
+          long: position == null ? 0.0 : position!.longitude, context: context,
+        ) ;
+        print("hi to screen");
+        print(response?.status);
+        if (response != null && (response.status??false) ) {
+
+        }
+        else {
+
+          final snackBar = SnackBar(content: Text('${response?.message}'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      });
+
+
     }
+  }
+  authAction(Authresult?  response){
+
   }
   getData() async {
     // title = await AppDataService().getCvTitle();

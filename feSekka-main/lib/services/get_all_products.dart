@@ -38,7 +38,7 @@ class GetAllProducts {
     return productModelList;
   }
 
-  Future getProductsbyCategory(int page, String? token, String? id,String garage) async {
+  Future getProductsbyCategory(int page, String? token, String? id,List<String> garage,List<String> zones,String isNew,String partId,String brandId,String modelId,String yearId) async {
     Response response;
     List<ProductModel> productModelList = <ProductModel>[];
     Datum? county;
@@ -49,15 +49,34 @@ class GetAllProducts {
       link += "?country=${county.countryId}";
     }
     try {
-      print("hi url ${link}");
+      print("hi url ${link}options options: Options(headers: ${"token:" "$token,""garage:""$garage,"
+          "zones:""$zones,"
+          "is_new:""$isNew,"
+          "part_id:""$partId,"
+          "brand_id:""$brandId,"
+          "model_id:""$modelId,"
+          "year_id:""$yearId"}),");
       if (token == null)
         response = await Dio().get(link,
-          options: Options(headers: {"garage":garage}),
+          options: Options(headers: {"garage":garage,
+            "zones":zones,
+            "is_new":isNew,
+            "part_id":partId,
+            "brand_id":brandId,
+            "model_id":modelId,
+            "year_id":yearId}),
         );
       else
+        print("bye url ${link}");
         response = await Dio().get(
           link,
-          options: Options(headers: {"token": "$token","garage":garage}),
+          options: Options(headers: {"token": "$token","garage":garage,
+            "zones":zones,
+            "is_new":isNew,
+            "part_id":partId,
+            "brand_id":brandId,
+            "model_id":modelId,
+            "year_id":yearId}),
         );
 
       print(link);

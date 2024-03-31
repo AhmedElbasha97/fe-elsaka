@@ -10,6 +10,8 @@ import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/message_response_model.dart';
+
 class ServiceProviderService {
   final String url = "https://carserv.net/api/";
   final String login = "service/provider/login";
@@ -23,6 +25,7 @@ class ServiceProviderService {
   final String products = "service/provider/products/list";
   final String productDelete = "service/provider/products/delete";
   final String addNewProduct = "service/provider/products/add";
+  final String addNewOrder = "orders/new";
   final String subcategory = "service/provider/subcategory/list";
   final String checkToken  = "service/provider/check/token";
   final String deleteSubCatgoryLink = "service/provider/subcategory/delete";
@@ -50,16 +53,22 @@ class ServiceProviderService {
   }
   Future<bool> serviceCheckToken() async {
     bool result = false;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var mobile = prefs.get("mobile");
-    var token = prefs.get("token");
-    var data = {"mobile": mobile,"token":"$token"};
-    Response response = await Dio().post("$url$checkToken", data: data);
-    if (response.data["status"] == true || response.data["status"] == "true") {
-      result = true;
+
+    FirebaseMessaging.instance.getToken().then((token) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var mobile = prefs.get("mobile");
+      var token = prefs.get("token");
+      var data = {"mobile": mobile,"token":"$token"};
+      Response response = await Dio().post("$url$checkToken", data: data);
+      if (response.data["status"] == true || response.data["status"] == "true") {
+        result = true;
+      }
+      return result;
+    });
+    return result;
+
     }
- return result;
-  }
+
 
   Future<Authresult?> serviceProvidersignup(
       {String? mobile,
@@ -69,7 +78,7 @@ class ServiceProviderService {
       String? lat,
       String? long,
       String? country,
-      File? img,String? token,  List<String?>? mainCats,String? garage}) async {
+      File? img,String? token,  List<String?>? mainCats,String? garage,List<String>? zoneId}) async {
     Authresult? result;
     FirebaseMessaging.instance.getToken().then((token) async {
     var data = FormData.fromMap({
@@ -82,10 +91,13 @@ class ServiceProviderService {
       "country_id": country,
       "image": img == null ? null : await MultipartFile.fromFile('${img.path}'),"token":"$token",
       "main_category_id":mainCats,
-      "garage":garage
+      "garage":garage,
+      "zones":zoneId
     });
     Response response = await Dio().post("$url$signup", data: data);
     print(response.data);
+    print(response.data['data'][0]['token']);
+    print(token);
     if (response.data["status"] == true || response.data["status"] == true) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("provider_id", response.data['data'][0]['provider_id']);
@@ -110,6 +122,7 @@ class ServiceProviderService {
         List<String?>? mainCats,
         File? img,
         String? garage,
+        List<String>? zoneId
       }) async {
     Authresult result;
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -125,10 +138,12 @@ class ServiceProviderService {
       "country_id": country,
       "image": img == null ? null : await MultipartFile.fromFile('${img.path}'),
       "main_category_id": mainCats,
-      "garage":garage
+      "garage":garage,
+      "zones":zoneId
     });
     Response response = await Dio().post("$url$edit", data: data);
     print(response.data);
+
     if (response.data["status"] == true || response.data["status"] == true) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("provider_id", response.data['data'][0]['provider_id']);
@@ -254,7 +269,13 @@ class ServiceProviderService {
       List<String?>? mainCats,
       String videoLink,
       String type,
-      File? video,String garage,) async {
+      File? video,
+      List<String> garage,
+      String? isNew,
+      String? partId,
+      String? brandId,
+      List<String>? modelId,
+      List<String>? yearId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString("provider_id");
     var data = FormData.fromMap({
@@ -277,10 +298,54 @@ class ServiceProviderService {
       "main_category_id": mainCats,
       "youtube": videoLink,
       "type":type,
-      "garage":garage
+      "garage":garage,
+      "is_new":isNew,
+      "part_id":partId,
+      "brand_id":brandId,
+      "model_id":modelId,
+      "year_id":yearId
     });
     Response res = await Dio().post("$url$addNewProduct", data: data);
     print(res.data);
+  }
+  Future<MessageResponseModel?>addRequest(
+      String message,
+      File? img,
+
+      List<String?>? mainCats,
+      String type,
+      List<String> garage,
+      String? isNew,
+      String? partId,
+      String? brandId,
+      String? countryId,
+      List<String>? modelId,
+      List<String>? yearId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? id = prefs.getString("id");
+    var data = FormData.fromMap({
+      "user_id": id,
+      "image": img == null ? null : await MultipartFile.fromFile('${img.path}'),
+      "country_id":countryId,
+      "message": message,
+      "main_category_id": mainCats,
+      "type":type,
+      "garage":garage,
+      "is_new":isNew,
+      "part_id":partId,
+      "brand_id":brandId,
+      "model_id":modelId,
+      "year_id":yearId
+    });
+    Response res = await Dio().post("$url$addNewOrder", data: data);
+    print(res.data);
+
+    var datare = res.data;
+    if(datare!=null){
+      return MessageResponseModel.fromJson(datare);
+    }
+    return null;
+
   }
 
   Future<List<SubCategory>> getSubcatogies() async {

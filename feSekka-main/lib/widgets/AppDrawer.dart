@@ -20,6 +20,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../ui/add_new_request_screen.dart';
+import '../ui/requestScreens/user_request_list_screen.dart';
+
 class AppDrawer extends StatefulWidget {
   String? token, name;
 
@@ -216,6 +219,50 @@ class _AppDrawerState extends State<AppDrawer> {
             leading: Icon(Icons.people_alt, color: Color(0xFF66a5b4)),
             onTap: () {
               _showAlertDialog();
+            },
+          ),
+          Divider(
+            height: 1,
+            thickness: 2,
+            endIndent: 30,
+            indent: 30,
+          ),
+          widget.token == null || widget.token!.isEmpty
+              ? Container()
+              : ListTile(
+            title: Text(
+                "انشاء طلب",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF66a5b4),
+                    fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.request_page, color: Color(0xFF66a5b4)),
+            onTap: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => AddNewRequestScreen(),
+              ));
+            },
+          ),
+          Divider(
+            height: 1,
+            thickness: 2,
+            endIndent: 30,
+            indent: 30,
+          ),
+          widget.token == null || widget.token!.isEmpty
+              ? Container()
+              : ListTile(
+            title: Text(
+                "الطلبات",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF66a5b4),
+                    fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.request_page, color: Color(0xFF66a5b4)),
+            onTap: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => UserRequestListScreen(),
+              ));
             },
           ),
           Divider(

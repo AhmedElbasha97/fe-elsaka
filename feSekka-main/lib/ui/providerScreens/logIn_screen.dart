@@ -176,7 +176,7 @@ class _LoginProviderScreenState extends State<LoginProviderScreen> {
                                   color: Color(0xFF0D986A),
                                 ),
                                 child: Text(
-                                    "${AppLocalizations.of(context)!.translate('login')}",
+                                    "${AppLocalizations.of(context)!.translate('loginAsProvider')}",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
